@@ -1,18 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    tools:context=".activity.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <FrameLayout
+        android:id="@+id/main_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+    </FrameLayout>
+
+    <RadioGroup
+        android:id="@+id/main_group"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="@mipmap/main_bottom"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-</android.support.constraint.ConstraintLayout>
+        <RadioButton
+            android:id="@+id/main_home"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="18dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:button="@null"
+            android:checked="true"
+            android:drawableBottom="@drawable/main_home" />
+
+        <RadioButton
+            android:id="@+id/main_circle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="18dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:button="@null"
+            android:drawableBottom="@drawable/main_circle" />
+
+        <RadioButton
+            android:id="@+id/main_shopping"
+
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="-10dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:button="@null"
+            android:drawableBottom="@mipmap/main_shopping" />
+
+        <RadioButton
+            android:id="@+id/main_order"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="18dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:button="@null"
+            android:drawableBottom="@drawable/main_order" />
+
+        <RadioButton
+            android:id="@+id/main_my"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="18dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:button="@null"
+            android:drawableBottom="@drawable/main_my" />
+
+    </RadioGroup>
+
+</LinearLayout>
