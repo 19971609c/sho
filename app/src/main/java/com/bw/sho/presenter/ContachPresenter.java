@@ -1,5 +1,6 @@
 package com.bw.sho.presenter;
 
+import com.bw.sho.bean.Displayinfo;
 import com.bw.sho.bean.HomeBanner;
 import com.bw.sho.bean.HomeShow;
 import com.bw.sho.content.Contach;
@@ -24,7 +25,7 @@ public class ContachPresenter implements Contach.ContachPresenter<Contach.Contac
     @Override
     public void attachView(Contach.ContachView contachView) {
         //绑定V层
-        this.contachView=contachView;
+        this.contachView = contachView;
         //绑定
         reference = new WeakReference<>(contachView);
         //实例M层
@@ -49,6 +50,7 @@ public class ContachPresenter implements Contach.ContachPresenter<Contach.Contac
         });
     }
 
+    //首页数据
     @Override
     public void getHomeData(String url) {
         contachModel.getHomeData(url, new Contach.ContachModel.OnBackHomeData() {
@@ -58,4 +60,16 @@ public class ContachPresenter implements Contach.ContachPresenter<Contach.Contac
             }
         });
     }
+
+    //关键值数据
+    @Override
+    public void getDisplay(String url, String keyword, int page, int count) {
+        contachModel.getDisplay(url, keyword, page, count, new Contach.ContachModel.OnBackDisplayData() {
+            @Override
+            public void backDisplayData(Displayinfo displayinfo) {
+                contachView.getDisplay(displayinfo);
+            }
+        });
+    }
+
 }

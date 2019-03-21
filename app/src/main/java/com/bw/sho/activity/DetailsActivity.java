@@ -11,7 +11,6 @@ import android.support.annotation.IdRes;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,14 +29,18 @@ import com.bumptech.glide.Glide;
 import com.bw.sho.R;
 import com.bw.sho.adapter.DetailsAdapter;
 import com.bw.sho.api.Api;
+import com.bw.sho.bean.AddCarinfo;
 import com.bw.sho.bean.Discussinfo;
 import com.bw.sho.content.DiscussContract;
 import com.bw.sho.presenter.DiscussPresenter;
 import com.bw.sho.view.IdeaScrollView;
 import com.bw.sho.view.IdeaViewPager;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import qiu.niorgai.StatusBarCompat;
 
@@ -53,6 +56,7 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     private ImageView icon;
     private View layer;
     private float currentPercentage = 0;
+    private Map<Integer, String> headerMap = new HashMap<>();
     private RadioGroup.OnCheckedChangeListener radioGroupListener = new RadioGroup.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
@@ -76,6 +80,8 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     private TextView weig;
     private View two;
     private SharedPreferences status;
+    private int commodityId;
+    private Map<String, String> map = new HashMap<>();
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -186,7 +192,7 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     //接收到的值
     @Override
     public void getDiscussData(Discussinfo.ResultBean result) {
-        Log.i("ffff", result.getCategoryName());
+        commodityId = result.getCommodityId();
         discuss_num.setText("当前评论总数 " + result.getCommentNum());
         money.setText("$" + result.getPrice());
         num.setText("已销售" + result.getSaleNum() + "件");
@@ -218,6 +224,12 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
 
     }
 
+    //购物车
+    @Override
+    public void getCar() {
+
+    }
+
     //点击事件
     @Override
     public void onClick(View v) {
@@ -225,15 +237,30 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
             case R.id.de_back:
                 finish();
                 break;
-            case R.id.de_shopping:
+            case R.id.de_shopping://加入购物车
+                if (status.getBoolean("statusId", false)) {
+                    int userId = status.getInt("userId", 0);
+                    String sessionId = status.getString("sessionId", null);
+                    map.put("userId",userId+"");
+                    map.put("sessionId",sessionId+"");
+                    //创建集合
+                    List<AddCarinfo> list = new ArrayList<>();
+                    list.add(new AddCarinfo(commodityId, 1));
+                    Gson gson = new Gson();
+                    String json = gson.toJson(list);
+                    //请求数据
+                    discussPresenter.getCar(Api.CarUrl,map, json);
+                } else {
+                    setLogin();
+                }
+                break;
+            case R.id.de_order:
                 if (status.getBoolean("statusId", false)) {
                     int userId = status.getInt("userId", 0);
                     String sessionId = status.getString("sessionId", null);
                 } else {
                     setLogin();
                 }
-                break;
-            case R.id.de_order:
                 break;
         }
     }
@@ -242,8 +269,8 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     private void setLogin() {
         View contentView = LayoutInflater.from(this).inflate(R.layout.popupwindow, null);
         final PopupWindow popupWindow = new PopupWindow(contentView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        TextView tvConfirm = (TextView)contentView.findViewById(R.id.tv_confirm);
-        TextView tvCancel = (TextView)contentView.findViewById(R.id.tv_cancel);
+        TextView tvConfirm = (TextView) contentView.findViewById(R.id.tv_confirm);
+        TextView tvCancel = (TextView) contentView.findViewById(R.id.tv_cancel);
         tvConfirm.setText("登录");
         tvCancel.setText("取消");
 
@@ -279,7 +306,7 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         //设置PopupWindow进入和退出动画
         popupWindow.setAnimationStyle(R.style.anim_popup_centerbar);
         // 设置PopupWindow显示在中间
-        popupWindow.showAtLocation(contentView,Gravity.CENTER,0,0);
+        popupWindow.showAtLocation(contentView, Gravity.CENTER, 0, 0);
 
     }
 

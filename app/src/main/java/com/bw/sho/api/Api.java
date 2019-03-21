@@ -19,4 +19,10 @@ public class Api {
     //注册
     //http://172.17.8.100/small/user/v1/register
     public static final String RegisterUrl = "http://mobile.bwstudent.com/";
+    //根据关键
+    //http://172.17.8.100/small/commodity/v1/findCommodityByKeyword
+    public static final String DisplayUrl = "http://mobile.bwstudent.com/";
+    //加入购物车
+    //http://172.17.8.100/small/order/verify/v1/syncShoppingCart
+    public static final String CarUrl = "http://mobile.bwstudent.com/";
 }

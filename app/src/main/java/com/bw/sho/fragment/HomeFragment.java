@@ -10,6 +10,7 @@ import com.bw.sho.activity.SearchActivity;
 import com.bw.sho.adapter.HomeAdapter;
 import com.bw.sho.api.Api;
 import com.bw.sho.base.BaseFragment;
+import com.bw.sho.bean.Displayinfo;
 import com.bw.sho.bean.HomeBanner;
 import com.bw.sho.bean.HomeShow;
 import com.bw.sho.content.Contach;
@@ -79,6 +80,11 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void getDisplay(Displayinfo displayinfo) {
+
     }
 
     //事件监听

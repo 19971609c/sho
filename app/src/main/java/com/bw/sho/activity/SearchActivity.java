@@ -1,5 +1,6 @@
 package com.bw.sho.activity;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,11 +29,16 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         searchBox.setOnBackSearchText(new SearchBoxView.OnBackSearchText() {
             @Override
             public void getText(String text) {
-                Log.i("xxx", text);
                 //存数据库
                 sqlDao.add(text);
                 //流逝布局
                 onData();
+                //跳转到显示页面
+                Intent intent = new Intent(SearchActivity.this, DisplayActivity.class);
+                //传值
+                intent.putExtra("text",text);
+                startActivity(intent);
+                finish();
             }
         });
 
@@ -46,6 +52,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         searchBox = findViewById(R.id.s_search);
         //关联数据库
         sqlDao = new SqlDao(this);
+        onData();
         //点击事件
         clear.setOnClickListener(this);
         back.setOnClickListener(this);

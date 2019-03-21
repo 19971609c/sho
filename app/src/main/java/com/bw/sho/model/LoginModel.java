@@ -5,10 +5,15 @@ import com.bw.sho.api.ApiService;
 import com.bw.sho.bean.Logininfo;
 import com.bw.sho.bean.Registerinfo;
 import com.bw.sho.content.LoginContach;
+import com.bw.sho.utils.NetWorkManager;
 import com.bw.sho.utils.RetrofitUtils;
 
 import java.util.Map;
 
+import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subscribers.DisposableSubscriber;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,41 +29,49 @@ public class LoginModel implements LoginContach.LoginModel {
     //登录
     @Override
     public void getLoginData(String url, Map<String, String> map, final OnCallBack onCallBack) {
-        ApiService apiService = RetrofitUtils.getRetrofitUtils().getApiService(url, ApiService.class);
-        Call<Logininfo> loginData = apiService.getLoginData(map);
-        loginData.enqueue(new Callback<Logininfo>() {
-            @Override
-            public void onResponse(Call<Logininfo> call, Response<Logininfo> response) {
-                Logininfo body = response.body();
-                String status = body.getStatus();
-                Log.i("login",status);
-                onCallBack.getLoginData(body);
-            }
+        ApiService apiService = NetWorkManager.getInstance().initApiService(url, ApiService.class);
+        Flowable<Logininfo> loginData = apiService.getLoginData(map);
+        loginData.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSubscriber<Logininfo>() {
+                    @Override
+                    public void onNext(Logininfo logininfo) {
+                        onCallBack.getLoginData(logininfo);
+                    }
 
-            @Override
-            public void onFailure(Call<Logininfo> call, Throwable t) {
+                    @Override
+                    public void onError(Throwable t) {
 
-            }
-        });
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     //注册
     @Override
     public void getregisterData(String url, Map<String, String> map, final OnBackregisterData onBackregisterData) {
-        ApiService apiService = RetrofitUtils.getRetrofitUtils().getApiService(url, ApiService.class);
-        Call<Registerinfo> register = apiService.getRegister(map);
-        register.enqueue(new Callback<Registerinfo>() {
-            @Override
-            public void onResponse(Call<Registerinfo> call, Response<Registerinfo> response) {
-                Registerinfo register = response.body();
-                onBackregisterData.getregisterData(register);
-            }
+        ApiService apiService = NetWorkManager.getInstance().initApiService(url, ApiService.class);
+        apiService.getRegister(map).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSubscriber<Registerinfo>() {
+                    @Override
+                    public void onNext(Registerinfo registerinfo) {
+                        onBackregisterData.getregisterData(registerinfo);
+                    }
 
-            @Override
-            public void onFailure(Call<Registerinfo> call, Throwable t) {
+                    @Override
+                    public void onError(Throwable t) {
 
-            }
-        });
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
-
 }

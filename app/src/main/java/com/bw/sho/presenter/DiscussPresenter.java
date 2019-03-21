@@ -6,6 +6,7 @@ import com.bw.sho.model.DiscussModel;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.Map;
 
 /**
  * @Auther: 不懂
@@ -37,6 +38,7 @@ public class DiscussPresenter implements DiscussContract.DiscussPresenter<Discus
     }
 
     //m返回数据
+    //详情
     @Override
     public void getDiscussData(String url, int commodityId) {
         discussModel.getDiscussData(url, commodityId, new DiscussContract.DiscussModel.backDiscussData() {
@@ -44,6 +46,17 @@ public class DiscussPresenter implements DiscussContract.DiscussPresenter<Discus
             public void getDiscussData(Discussinfo.ResultBean result) {
                 //v返回数据
                 discussView.getDiscussData(result);
+            }
+        });
+    }
+
+    //购物车
+    @Override
+    public void getCar(String carUrl, Map<String, String> map, String json) {
+        discussModel.getCar(carUrl, map, json, new DiscussContract.DiscussModel.backCarData() {
+            @Override
+            public void getCarData() {
+
             }
         });
     }

@@ -1,5 +1,6 @@
 package com.bw.sho.content;
 
+import com.bw.sho.bean.Displayinfo;
 import com.bw.sho.bean.HomeBanner;
 import com.bw.sho.bean.HomeShow;
 
@@ -17,6 +18,9 @@ public class Contach {
 
         //返回首页数据
         public void getHomeData(HomeShow body);
+
+        //返回关键字数据
+        public void getDisplay(Displayinfo displayinfo);
     }
 
     //P层
@@ -33,6 +37,9 @@ public class Contach {
 
         //请求首页数据
         public void getHomeData(String url);
+
+        //请求关键字数据
+        public void getDisplay(String url, String keyword, int page, int count);
     }
 
     //M层
@@ -54,6 +61,14 @@ public class Contach {
         public interface OnBackHomeData {
             //返回首页数据
             public void backHomeData(HomeShow body);
+        }
+
+        //请求关键字数据
+        public void getDisplay(String url, String keyword, int page, int count, OnBackDisplayData onBackDisplayData);
+
+        public interface OnBackDisplayData {
+            //返回首页数据
+            public void backDisplayData(Displayinfo displayinfo);
         }
 
     }

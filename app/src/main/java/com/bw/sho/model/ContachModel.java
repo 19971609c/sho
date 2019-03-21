@@ -1,13 +1,16 @@
 package com.bw.sho.model;
 
 import com.bw.sho.api.ApiService;
+import com.bw.sho.bean.Displayinfo;
 import com.bw.sho.bean.HomeBanner;
 import com.bw.sho.bean.HomeShow;
 import com.bw.sho.content.Contach;
-import com.bw.sho.utils.RetrofitUtils;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import com.bw.sho.utils.NetWorkManager;
+
+import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subscribers.DisposableSubscriber;
 
 /**
  * @Auther: 不懂
@@ -19,36 +22,76 @@ public class ContachModel implements Contach.ContachModel {
     //请求轮播图
     @Override
     public void getBannerData(String url, final OnCallBack onCallBack) {
-        ApiService apiService = RetrofitUtils.getRetrofitUtils().getApiService(url, ApiService.class);
-        apiService.getBanner().enqueue(new Callback<HomeBanner>() {
-            @Override
-            public void onResponse(Call<HomeBanner> call, Response<HomeBanner> response) {
-                HomeBanner body = response.body();
-                onCallBack.backBannerData(body);
-            }
+        ApiService apiService = NetWorkManager.getInstance().initApiService(url, ApiService.class);
+        Flowable<HomeBanner> banner = apiService.getBanner();
+        banner.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSubscriber<HomeBanner>() {
+                    @Override
+                    public void onNext(HomeBanner result) {
+                        onCallBack.backBannerData(result);
+                    }
 
-            @Override
-            public void onFailure(Call<HomeBanner> call, Throwable t) {
-                String message = t.getMessage();
-            }
-        });
+                    @Override
+                    public void onError(Throwable t) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
     }
 
     //请求首页数据
     @Override
-    public void getHomeData(String url,final OnBackHomeData onBackHomeData) {
-        ApiService apiService = RetrofitUtils.getRetrofitUtils().getApiService(url, ApiService.class);
-        apiService.getHomeData().enqueue(new Callback<HomeShow>() {
-            @Override
-            public void onResponse(Call<HomeShow> call, Response<HomeShow> response) {
-                HomeShow body = response.body();
-                onBackHomeData.backHomeData(body);
-            }
+    public void getHomeData(String url, final OnBackHomeData onBackHomeData) {
+        ApiService apiService = NetWorkManager.getInstance().initApiService(url, ApiService.class);
+        Flowable<HomeShow> homeData = apiService.getHomeData();
+        homeData.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSubscriber<HomeShow>() {
+                    @Override
+                    public void onNext(HomeShow homeShow) {
+                        onBackHomeData.backHomeData(homeShow);
+                    }
 
-            @Override
-            public void onFailure(Call<HomeShow> call, Throwable t) {
+                    @Override
+                    public void onError(Throwable t) {
 
-            }
-        });
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    //关键字数据
+    @Override
+    public void getDisplay(String url, String keyword, int page, int count, final OnBackDisplayData onBackDisplayData) {
+        ApiService apiService = NetWorkManager.getInstance().initApiService(url, ApiService.class);
+        Flowable<Displayinfo> display = apiService.getDisplay(keyword, page, count);
+        display.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSubscriber<Displayinfo>() {
+                    @Override
+                    public void onNext(Displayinfo displayinfo) {
+                        onBackDisplayData.backDisplayData(displayinfo);
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 }
