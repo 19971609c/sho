@@ -25,4 +25,7 @@ public class Api {
     //加入购物车
     //http://172.17.8.100/small/order/verify/v1/syncShoppingCart
     public static final String CarUrl = "http://mobile.bwstudent.com/";
+    //查询购物车
+    //http://mobile.bwstudent.com/small/order/verify/v1/findShoppingCart
+    public static final String findCarUrl = "http://mobile.bwstudent.com/";
 }

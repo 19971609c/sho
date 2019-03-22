@@ -1,6 +1,8 @@
 package com.bw.sho.fragment;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
 import com.bw.sho.R;
 import com.bw.sho.base.BaseFragment;
 
@@ -27,7 +29,7 @@ public class CircleFragment extends BaseFragment {
 
     @Override
     protected void initView(View view) {
-
+        RecyclerView recyclerView = view.findViewById(R.id.car_recycle);
     }
 
     @Override

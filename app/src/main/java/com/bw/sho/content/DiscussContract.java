@@ -1,8 +1,9 @@
 package com.bw.sho.content;
 
+import com.bw.sho.bean.AddCarinfo;
 import com.bw.sho.bean.Discussinfo;
 
-import java.util.Map;
+import org.json.JSONObject;
 
 /**
  * @Auther: 不懂
@@ -33,7 +34,7 @@ public class DiscussContract {
         public void getDiscussData(String url, int commodityId);
 
         //加入购物车
-        public void getCar(String carUrl, Map<String, String> map, String json);
+        public void getCar(String carUrl, int userId, String sessionId, String data);
     }
 
     public interface DiscussModel {
@@ -49,7 +50,7 @@ public class DiscussContract {
         }
 
         //购物车
-        public void getCar(String url, Map<String, String> map, String json, backCarData backCarData);
+        public void getCar(String carUrl, int userId, String sessionId, String data, backCarData backCarData);
 
         //购物车
         public interface backCarData {

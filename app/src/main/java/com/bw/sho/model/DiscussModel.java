@@ -2,19 +2,26 @@ package com.bw.sho.model;
 
 import android.util.Log;
 
+import com.bw.sho.api.Api;
 import com.bw.sho.api.ApiService;
 import com.bw.sho.bean.Discussinfo;
-import com.bw.sho.bean.SHZcarinfo;
 import com.bw.sho.content.DiscussContract;
 import com.bw.sho.utils.NetWorkManager;
 
-import java.util.Map;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.DisposableSubscriber;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * @Auther: 不懂
@@ -22,6 +29,7 @@ import io.reactivex.subscribers.DisposableSubscriber;
  * @Description:
  */
 public class DiscussModel implements DiscussContract.DiscussModel {
+    private JSONObject jsonObject;
 
     //m请求数据
 
@@ -53,24 +61,30 @@ public class DiscussModel implements DiscussContract.DiscussModel {
 
     //购物车
     @Override
-    public void getCar(String url, Map<String, String> map, String json, backCarData backCarData) {
+    public void getCar(String carUrl, final int userId, final String sessionId, String data, backCarData backCarData) {
+        Retrofit build = new Retrofit.Builder()
+                .baseUrl(Api.CarUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiService apiService = build.create(ApiService.class);
+        Call<ResponseBody> car = apiService.getCar(userId, sessionId, data);
+        car.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    String string = response.body().string();
+                    Log.d("xxx", string + "");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
-        ApiService apiService = NetWorkManager.getInstance().initApiService(url, ApiService.class);
-        Flowable<SHZcarinfo> car = apiService.getCar(map, json);
-        car.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<SHZcarinfo>() {
-                    @Override
-                    public void accept(SHZcarinfo shZcarinfo) throws Exception {
-                        Log.e("shZcarinfo", "accept: " + shZcarinfo.getMessage());
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        String message = throwable.getMessage();
-                        Log.i("sss", message);
-                    }
-                });
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+
     }
 
 }

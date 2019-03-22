@@ -2,19 +2,25 @@ package com.bw.sho.api;
 
 import com.bw.sho.bean.Discussinfo;
 import com.bw.sho.bean.Displayinfo;
+import com.bw.sho.bean.FindCarinfo;
 import com.bw.sho.bean.HomeBanner;
 import com.bw.sho.bean.HomeShow;
 import com.bw.sho.bean.Logininfo;
 import com.bw.sho.bean.Registerinfo;
 import com.bw.sho.bean.SHZcarinfo;
 
+import org.json.JSONObject;
+
 import java.util.Map;
 
 import io.reactivex.Flowable;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.HeaderMap;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
@@ -53,5 +59,9 @@ public interface ApiService {
 
     //购物车
     @PUT("small/order/verify/v1/syncShoppingCart")
-    Flowable<SHZcarinfo> getCar(@HeaderMap Map<String, String> map, @Query("data") String data);
+    Call<ResponseBody> getCar(@Header("userId") int userId, @Header("sessionId") String sessionId, @Query("data") String data);
+
+    //查询购物车
+    @GET("small/order/verify/v1/findShoppingCart")
+    Flowable<FindCarinfo> findCar(@Header("userId") int userId, @Header("sessionId") String sessionId);
 }

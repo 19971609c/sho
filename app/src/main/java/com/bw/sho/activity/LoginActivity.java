@@ -28,6 +28,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private SharedPreferences preferences;
     private LoginPresenter loginPresenter;
     private Map<String, String> map = new HashMap<>();
+    private SharedPreferences login;
 
     @Override
     protected int getLayoutId() {
@@ -37,6 +38,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     @Override
     protected void initView() {
         preferences = getSharedPreferences("status", MODE_PRIVATE);
+        login = getSharedPreferences("logins", MODE_PRIVATE);
 
         log_chenck = findViewById(R.id.log_chenck);
         log_phone = findViewById(R.id.log_phone);
@@ -48,10 +50,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         loginPresenter = new LoginPresenter();
         loginPresenter.attachView(this);
         //判断是否记住密码
-        if (preferences.getBoolean("login", false)) {
+        if (login.getBoolean("login", false)) {
             log_chenck.setChecked(true);
-            String phone1 = preferences.getString("phone", "");
-            String pwd1 = preferences.getString("pwd", "");
+            String phone1 = login.getString("phone", "");
+            String pwd1 = login.getString("pwd", "");
             log_phone.setText(phone1);
             log_pwd.setText(pwd1);
         }
@@ -87,7 +89,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                     return;
                 }
                 //请求值
-                SharedPreferences.Editor edit = preferences.edit();
+                SharedPreferences.Editor edit = login.edit();
                 edit.putString("phone", phone);
                 edit.putString("pwd", pwd);
                 edit.commit();
@@ -106,8 +108,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         if (body.getStatus().equals("0000")) {
             Toast.makeText(LoginActivity.this, body.getMessage(), Toast.LENGTH_SHORT).show();
             /*-----------------------------记住密码----------------------------------------*/
+            SharedPreferences.Editor edit1 = login.edit();
+            edit1.putBoolean("login", log_chenck.isChecked());
+            edit1.commit();
             SharedPreferences.Editor edit = preferences.edit();
-            edit.putBoolean("login", log_chenck.isChecked());
             //存登录成功后的数据
             edit.putBoolean("statusId",true);//登录成功
             edit.putString("headPic",body.getResult().getHeadPic());//头像地址

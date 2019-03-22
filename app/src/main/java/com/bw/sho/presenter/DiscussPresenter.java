@@ -1,12 +1,14 @@
 package com.bw.sho.presenter;
 
+import com.bw.sho.bean.AddCarinfo;
 import com.bw.sho.bean.Discussinfo;
 import com.bw.sho.content.DiscussContract;
 import com.bw.sho.model.DiscussModel;
 
+import org.json.JSONObject;
+
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.Map;
 
 /**
  * @Auther: 不懂
@@ -50,13 +52,13 @@ public class DiscussPresenter implements DiscussContract.DiscussPresenter<Discus
         });
     }
 
+
     //购物车
     @Override
-    public void getCar(String carUrl, Map<String, String> map, String json) {
-        discussModel.getCar(carUrl, map, json, new DiscussContract.DiscussModel.backCarData() {
+    public void getCar(String carUrl, int userId, String sessionId, String data) {
+        discussModel.getCar(carUrl, userId, sessionId, data, new DiscussContract.DiscussModel.backCarData() {
             @Override
             public void getCarData() {
-
             }
         });
     }

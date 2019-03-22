@@ -16,7 +16,7 @@ public class MeApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        SharedPreferences status = getSharedPreferences("status", MODE_PRIVATE);
+        SharedPreferences status = getSharedPreferences("logins", MODE_PRIVATE);
         SharedPreferences.Editor edit = status.edit();
         edit.clear();
         edit.commit();

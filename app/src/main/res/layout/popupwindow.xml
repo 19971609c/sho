@@ -5,12 +5,13 @@
     android:background="@color/white"
     android:orientation="vertical">
 
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:gravity="center_horizontal"
-        android:text="提示信息"
+        android:text="是否登录"
         android:textSize="20sp" />
 
     <View

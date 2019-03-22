@@ -11,6 +11,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,20 +30,35 @@ import com.bumptech.glide.Glide;
 import com.bw.sho.R;
 import com.bw.sho.adapter.DetailsAdapter;
 import com.bw.sho.api.Api;
+import com.bw.sho.api.ApiService;
 import com.bw.sho.bean.AddCarinfo;
 import com.bw.sho.bean.Discussinfo;
+import com.bw.sho.bean.SHZcarinfo;
 import com.bw.sho.content.DiscussContract;
 import com.bw.sho.presenter.DiscussPresenter;
 import com.bw.sho.view.IdeaScrollView;
 import com.bw.sho.view.IdeaViewPager;
 import com.google.gson.Gson;
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
 import qiu.niorgai.StatusBarCompat;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DetailsActivity extends AppCompatActivity implements DiscussContract.DiscussView, View.OnClickListener {
 
@@ -81,7 +97,6 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     private View two;
     private SharedPreferences status;
     private int commodityId;
-    private Map<String, String> map = new HashMap<>();
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -241,15 +256,14 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
                 if (status.getBoolean("statusId", false)) {
                     int userId = status.getInt("userId", 0);
                     String sessionId = status.getString("sessionId", null);
-                    map.put("userId",userId+"");
-                    map.put("sessionId",sessionId+"");
+
                     //创建集合
                     List<AddCarinfo> list = new ArrayList<>();
                     list.add(new AddCarinfo(commodityId, 1));
                     Gson gson = new Gson();
-                    String json = gson.toJson(list);
+                     String json = gson.toJson(list);
                     //请求数据
-                    discussPresenter.getCar(Api.CarUrl,map, json);
+                    discussPresenter.getCar(Api.CarUrl, userId, sessionId, json);
                 } else {
                     setLogin();
                 }
