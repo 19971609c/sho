@@ -1,5 +1,7 @@
 package com.bw.sho.bean;
 
+import org.greenrobot.greendao.annotation.Entity;
+
 import java.util.List;
 
 /**
@@ -17,7 +19,7 @@ public class FindCarinfo {
 
     private String message;
     private String status;
-    private List<ResultBean> result;
+    private List<FindCarResclt> result;
 
     public String getMessage() {
         return message;
@@ -35,22 +37,24 @@ public class FindCarinfo {
         this.status = status;
     }
 
-    public List<ResultBean> getResult() {
+    public List<FindCarResclt> getResult() {
         return result;
     }
 
-    public void setResult(List<ResultBean> result) {
+    public void setResult(List<FindCarResclt> result) {
         this.result = result;
     }
 
+
+/*    @Entity
     public static class ResultBean {
-        /**
+        *//**
          * commodityId : 6
          * commodityName : 轻柔系自然裸妆假睫毛
          * count : 1
          * pic : http://mobile.bwstudent.com/images/small/commodity/mzhf/cz/4/1.jpg
          * price : 39
-         */
+         *//*
 
         private int commodityId;
         private String commodityName;
@@ -107,5 +111,5 @@ public class FindCarinfo {
         public void setPrice(int price) {
             this.price = price;
         }
-    }
+    }*/
 }

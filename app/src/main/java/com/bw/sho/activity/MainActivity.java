@@ -27,8 +27,8 @@ public class MainActivity extends BaseActivity implements RadioGroup.OnCheckedCh
         manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         //添加fragment
-        circleFragment = new CircleFragment();
         homeFragment = new HomeFragment();
+        circleFragment = new CircleFragment();
         goodsCarFragment = new GoodsCarFragment();
         myFragment = new MyFragment();
         transaction.add(R.id.main_frame, homeFragment);

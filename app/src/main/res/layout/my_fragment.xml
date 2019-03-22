@@ -8,8 +8,9 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="370dp"
+        android:layout_height="400dp"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="2dp"
         android:background="@drawable/shape_my_circle" />
 
     <LinearLayout
@@ -30,7 +31,7 @@
             android:id="@+id/my_nikname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:gravity="center_horizontal"
             android:text="我的"
             android:textSize="20sp" />
@@ -39,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -68,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -97,7 +98,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -125,7 +126,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -144,6 +145,35 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:text="我的钱包"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/my_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="15dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@mipmap/my_address" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="收货地址"
                     android:textSize="16sp" />
             </LinearLayout>
 

@@ -28,4 +28,7 @@ public class Api {
     //查询购物车
     //http://mobile.bwstudent.com/small/order/verify/v1/findShoppingCart
     public static final String findCarUrl = "http://mobile.bwstudent.com/";
+    //添加地址
+    //http://mobile.bwstudent.com/small/user/verify/v1/addReceiveAddress
+    public static final String NewAddressUrl = "http://mobile.bwstudent.com/";
 }

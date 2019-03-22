@@ -5,8 +5,10 @@ import android.util.Log;
 import com.bw.sho.api.Api;
 import com.bw.sho.api.ApiService;
 import com.bw.sho.bean.Discussinfo;
+import com.bw.sho.bean.SHZcarinfo;
 import com.bw.sho.content.DiscussContract;
 import com.bw.sho.utils.NetWorkManager;
+import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -29,7 +31,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * @Description:
  */
 public class DiscussModel implements DiscussContract.DiscussModel {
-    private JSONObject jsonObject;
 
     //m请求数据
 
@@ -61,8 +62,10 @@ public class DiscussModel implements DiscussContract.DiscussModel {
 
     //购物车
     @Override
-    public void getCar(String carUrl, final int userId, final String sessionId, String data, backCarData backCarData) {
+    public void getCar(String carUrl, final int userId, final String sessionId, String data, final backCarData backCarData) {
+
         Retrofit build = new Retrofit.Builder()
+                .client(NetWorkManager.getInstance().initOkHttp())
                 .baseUrl(Api.CarUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -73,7 +76,9 @@ public class DiscussModel implements DiscussContract.DiscussModel {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
                     String string = response.body().string();
-                    Log.d("xxx", string + "");
+                    Gson gson = new Gson();
+                    SHZcarinfo shZcarinfo = gson.fromJson(string, SHZcarinfo.class);
+                    backCarData.getCarData(shZcarinfo);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

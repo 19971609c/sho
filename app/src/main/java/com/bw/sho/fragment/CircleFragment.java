@@ -1,7 +1,9 @@
 package com.bw.sho.fragment;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
 
 import com.bw.sho.R;
 import com.bw.sho.base.BaseFragment;
@@ -12,6 +14,8 @@ import com.bw.sho.base.BaseFragment;
  * @Description:
  */
 public class CircleFragment extends BaseFragment {
+
+    private boolean isGetData = false;
     @Override
     protected void stopLoad() {
 
@@ -35,5 +39,24 @@ public class CircleFragment extends BaseFragment {
     @Override
     protected int getLatoutId() {
         return R.layout.circle_fragment;
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        //   进入当前Fragment
+        if (enter && !isGetData) {
+            isGetData = true;
+            Log.d("wang","cir");
+        } else {
+            isGetData = false;
+        }
+        return super.onCreateAnimation(transit, enter, nextAnim);
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isGetData = false;
     }
 }

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
-
+//greendao
+apply plugin: 'org.greenrobot.greendao'
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -15,6 +16,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    //green
+    greendao {
+        schemaVersion 1
+        daoPackage 'com.bw.sho.gen'
+        targetGenDir 'src/main/java'
     }
 }
 
@@ -59,4 +66,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.0.0-RC3'
     implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0-RC3'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.0-RC1'
+    //GrennDao数据库
+    implementation 'org.greenrobot:greendao:3.0.1'
+    implementation 'org.greenrobot:greendao-generator:3.0.0'
 }

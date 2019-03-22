@@ -1,9 +1,7 @@
 package com.bw.sho.content;
 
-import com.bw.sho.bean.AddCarinfo;
 import com.bw.sho.bean.Discussinfo;
-
-import org.json.JSONObject;
+import com.bw.sho.bean.SHZcarinfo;
 
 /**
  * @Auther: 不懂
@@ -18,7 +16,7 @@ public class DiscussContract {
         public void getDiscussData(Discussinfo.ResultBean result);
 
         //加入购物车
-        public void getCar();
+        public void getCar(SHZcarinfo shZcarinfo);
     }
 
     //p
@@ -55,7 +53,7 @@ public class DiscussContract {
         //购物车
         public interface backCarData {
             //m返回数据
-            void getCarData();
+            void getCarData(SHZcarinfo shZcarinfo);
         }
     }
 }

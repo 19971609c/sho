@@ -64,4 +64,9 @@ public interface ApiService {
     //查询购物车
     @GET("small/order/verify/v1/findShoppingCart")
     Flowable<FindCarinfo> findCar(@Header("userId") int userId, @Header("sessionId") String sessionId);
+
+    //添加地址
+    @FormUrlEncoded
+    @POST("small/user/v1/register")
+    Flowable<SHZcarinfo> getAddress(@Header("userId") int userId,@Header("sessionId") String sessionId,@FieldMap Map<String, String> map);
 }

@@ -3,7 +3,10 @@ package com.bw.sho.fragment;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+
 import com.bw.sho.R;
 import com.bw.sho.activity.DetailsActivity;
 import com.bw.sho.activity.SearchActivity;
@@ -25,7 +28,7 @@ import java.util.List;
  * @Description:
  */
 public class HomeFragment extends BaseFragment implements View.OnClickListener, Contach.ContachView {
-
+    private boolean isGetData = false;
     private SearchBoxView searchBox;
     private RecyclerView recycle;
     private ContachPresenter contachPresenter;
@@ -118,5 +121,24 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     public void onClick(View v) {
         switch (v.getId()) {
         }
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        //   进入当前Fragment
+        if (enter && !isGetData) {
+            isGetData = true;
+            contachPresenter.getBannerData(Api.HomeBannerUrl);
+        } else {
+            isGetData = false;
+        }
+        return super.onCreateAnimation(transit, enter, nextAnim);
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isGetData = false;
     }
 }

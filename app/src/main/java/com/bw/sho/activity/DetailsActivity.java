@@ -11,7 +11,6 @@ import android.support.annotation.IdRes;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,42 +24,35 @@ import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bw.sho.R;
 import com.bw.sho.adapter.DetailsAdapter;
 import com.bw.sho.api.Api;
-import com.bw.sho.api.ApiService;
+import com.bw.sho.app.MeApp;
 import com.bw.sho.bean.AddCarinfo;
 import com.bw.sho.bean.Discussinfo;
+import com.bw.sho.bean.FindCarResclt;
+import com.bw.sho.bean.FindCarinfo;
 import com.bw.sho.bean.SHZcarinfo;
 import com.bw.sho.content.DiscussContract;
+import com.bw.sho.content.FindCarContach;
+import com.bw.sho.gen.FindCarRescltDao;
 import com.bw.sho.presenter.DiscussPresenter;
+import com.bw.sho.presenter.FindCarPresenter;
 import com.bw.sho.view.IdeaScrollView;
 import com.bw.sho.view.IdeaViewPager;
 import com.google.gson.Gson;
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.ResponseBody;
 import qiu.niorgai.StatusBarCompat;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
-public class DetailsActivity extends AppCompatActivity implements DiscussContract.DiscussView, View.OnClickListener {
+public class DetailsActivity extends AppCompatActivity implements DiscussContract.DiscussView, View.OnClickListener, FindCarContach.FindCarView {
 
 
     private IdeaViewPager viewPager;
@@ -97,6 +89,8 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     private View two;
     private SharedPreferences status;
     private int commodityId;
+    private FindCarPresenter findCarPresenter;
+    private FindCarRescltDao findCarRescltDao;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -193,13 +187,18 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         shopping.setOnClickListener(this);
         order.setOnClickListener(this);
         back.setOnClickListener(this);
+        //实例p
+        findCarPresenter = new FindCarPresenter();
+        discussPresenter = new DiscussPresenter();
+
+        findCarPresenter.attachView(this);
+        discussPresenter.attachView(this);
+
+        findCarRescltDao = MeApp.getInstance().getDaoSession().getFindCarRescltDao();
     }
 
     //请求数据
     private void initData(int commodityId) {
-        //实例p
-        discussPresenter = new DiscussPresenter();
-        discussPresenter.attachView(this);
         //请求数据
         discussPresenter.getDiscussData(Api.DiscussUrl, commodityId);
     }
@@ -239,10 +238,19 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
 
     }
 
-    //购物车
+    //添加购物车
     @Override
-    public void getCar() {
-
+    public void getCar(SHZcarinfo shZcarinfo) {
+        if (shZcarinfo.getStatus().equals("0000")) {
+            Toast.makeText(DetailsActivity.this, shZcarinfo.getMessage(), Toast.LENGTH_SHORT).show();
+            //查询购物车
+            int userId = status.getInt("userId", 0);
+            String sessionId = status.getString("sessionId", null);
+            //查询购物车
+            findCarPresenter.getFindCar(Api.findCarUrl, userId, sessionId);
+        } else {
+            Toast.makeText(DetailsActivity.this, shZcarinfo.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     //点击事件
@@ -256,13 +264,12 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
                 if (status.getBoolean("statusId", false)) {
                     int userId = status.getInt("userId", 0);
                     String sessionId = status.getString("sessionId", null);
-
                     //创建集合
                     List<AddCarinfo> list = new ArrayList<>();
                     list.add(new AddCarinfo(commodityId, 1));
                     Gson gson = new Gson();
-                     String json = gson.toJson(list);
-                    //请求数据
+                    String json = gson.toJson(list);
+                    //添加购物车
                     discussPresenter.getCar(Api.CarUrl, userId, sessionId, json);
                 } else {
                     setLogin();
@@ -279,6 +286,18 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         }
     }
 
+    //查询购物车
+    @Override
+    public void getFindCar(FindCarinfo findCarinfo) {
+        List<FindCarResclt> result = findCarinfo.getResult();
+        if (result.size() > 0) {
+            for (int i = 0; i < result.size(); i++) {
+                FindCarResclt findCarResclt = result.get(i);
+                findCarRescltDao.insert(findCarResclt);
+            }
+        }
+    }
+
     //提示用户登录
     private void setLogin() {
         View contentView = LayoutInflater.from(this).inflate(R.layout.popupwindow, null);
@@ -287,7 +306,6 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         TextView tvCancel = (TextView) contentView.findViewById(R.id.tv_cancel);
         tvConfirm.setText("登录");
         tvCancel.setText("取消");
-
         tvConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -323,6 +341,7 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         popupWindow.showAtLocation(contentView, Gravity.CENTER, 0, 0);
 
     }
+
 
     public void setRadioButtonTextColor(float percentage) {
         if (Math.abs(percentage - currentPercentage) >= 0.1f) {
@@ -363,6 +382,8 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     protected void onDestroy() {
         super.onDestroy();
         discussPresenter.detachView(this);
+        findCarPresenter.delachView(this);
     }
+
 
 }

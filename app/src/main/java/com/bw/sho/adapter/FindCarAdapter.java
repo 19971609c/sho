@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.bw.sho.R;
+import com.bw.sho.bean.FindCarResclt;
 import com.bw.sho.bean.FindCarinfo;
 import com.bw.sho.view.NumberView;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -24,9 +25,9 @@ import java.util.List;
 public class FindCarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
-    private List<FindCarinfo.ResultBean> list;
+    private List<FindCarResclt> list;
 
-    public FindCarAdapter(Context context, List<FindCarinfo.ResultBean> list) {
+    public FindCarAdapter(Context context, List<FindCarResclt> list) {
         this.context = context;
         this.list = list;
         isCheck(false);
@@ -47,29 +48,29 @@ public class FindCarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         numHolder.text.setText(list.get(i).getCommodityName());
         numHolder.money.setText("$" + list.get(i).getPrice() + ".00");
         numHolder.image.setImageURI(list.get(i).getPic());
-        numHolder.check.setChecked(list.get(i).isCheck());
+        numHolder.check.setChecked(list.get(i).getIsCheck());
 
         //点击事件
         numHolder.check.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //设置反值
-                boolean check = list.get(i).isCheck();
-                list.get(i).setCheck(!check);
+                boolean check = list.get(i).getIsCheck();
+                list.get(i).setIsCheck(!check);
                 //价格
                 int moneys = 0;
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).isCheck()) {
+                    if (list.get(i).getIsCheck()) {
                         moneys += list.get(i).getPrice() * list.get(i).getCount();
                     }
                 }
                 if (onMoneyClick!=null){
                     onMoneyClick.getData(moneys);
                 }
-                //
+                //按钮
                 boolean is = true;
                 for (int j = 0; j < list.size(); j++) {
-                    if (!list.get(j).isCheck()) {
+                    if (!list.get(j).getIsCheck()) {
                         is = false;
                         if (oncheckClick != null) {
                             oncheckClick.setBoolean(is);
@@ -93,7 +94,7 @@ public class FindCarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 //价格
                 int moneys = 0;
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).isCheck()) {
+                    if (list.get(i).getIsCheck()) {
                         moneys += list.get(i).getPrice() * list.get(i).getCount();
                     }
                 }
@@ -111,12 +112,12 @@ public class FindCarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private void setCheck(boolean check) {
         for (int i = 0; i < list.size(); i++) {
-            list.get(i).setCheck(check);
+            list.get(i).setIsCheck(check);
         }
         notifyDataSetChanged();
         int moneys = 0;
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).isCheck()) {
+            if (list.get(i).getIsCheck()) {
                 moneys += list.get(i).getPrice() * list.get(i).getCount();
             }
         }

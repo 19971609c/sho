@@ -1,11 +1,9 @@
 package com.bw.sho.presenter;
 
-import com.bw.sho.bean.AddCarinfo;
 import com.bw.sho.bean.Discussinfo;
+import com.bw.sho.bean.SHZcarinfo;
 import com.bw.sho.content.DiscussContract;
 import com.bw.sho.model.DiscussModel;
-
-import org.json.JSONObject;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -58,7 +56,8 @@ public class DiscussPresenter implements DiscussContract.DiscussPresenter<Discus
     public void getCar(String carUrl, int userId, String sessionId, String data) {
         discussModel.getCar(carUrl, userId, sessionId, data, new DiscussContract.DiscussModel.backCarData() {
             @Override
-            public void getCarData() {
+            public void getCarData(SHZcarinfo shZcarinfo) {
+                discussView.getCar(shZcarinfo);
             }
         });
     }
