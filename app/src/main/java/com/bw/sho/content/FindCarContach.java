@@ -1,6 +1,9 @@
 package com.bw.sho.content;
 
+import com.bw.sho.bean.Circleinfo;
 import com.bw.sho.bean.FindCarinfo;
+
+import java.util.List;
 
 /**
  * @Auther: 不懂
@@ -12,6 +15,10 @@ public class FindCarContach {
     public interface FindCarView {
         //V层返回到activity的方法
         public void getFindCar(FindCarinfo findCarinfo);
+
+        public void CircleData(List<Circleinfo.ResultBean> circleList);
+
+        public void CreateOrder();
     }
 
     //P层
@@ -24,6 +31,10 @@ public class FindCarContach {
 
         //P层的请求数据方法
         public void getFindCar(String url, int userId, String sessionId);
+
+        public void CircleData(String url, int page, int count);
+
+        public void CreateOrder(String url, int userId, String sessionId, String orderInfo, double totalPrice, int addressId);
     }
 
     //M层
@@ -35,6 +46,20 @@ public class FindCarContach {
         public interface OnCallBack {
             //对应M的放回方法
             public void getFindCar(FindCarinfo findCarinfo);
+        }
+
+        public void CircleData(String url, int page, int count, OnCallBackCircle onCallBackCircle);
+
+        public interface OnCallBackCircle {
+            //对应M的放回方法
+            public void CircleData(List<Circleinfo.ResultBean> circleList);
+        }
+
+        public void CreateOrder(String url, int userId, String sessionId, String orderInfo, double totalPrice, int addressId, OnCallBackOrder onCallBackOrder);
+
+        public interface OnCallBackOrder {
+            //对应M的放回方法
+            public void CreateOrder();
         }
     }
 }

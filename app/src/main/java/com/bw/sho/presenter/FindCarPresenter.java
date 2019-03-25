@@ -1,11 +1,13 @@
 package com.bw.sho.presenter;
 
+import com.bw.sho.bean.Circleinfo;
 import com.bw.sho.bean.FindCarinfo;
 import com.bw.sho.content.FindCarContach;
 import com.bw.sho.model.FindCarModel;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
  * @Auther: 不懂
@@ -40,6 +42,26 @@ public class FindCarPresenter implements FindCarContach.FindCarPresenter<FindCar
             @Override
             public void getFindCar(FindCarinfo findCarinfo) {
                 findCarView.getFindCar(findCarinfo);
+            }
+        });
+    }
+
+    @Override
+    public void CircleData(String url, int page, int count) {
+        findCarModel.CircleData(url, page, count, new FindCarContach.CFindCarModel.OnCallBackCircle() {
+            @Override
+            public void CircleData(List<Circleinfo.ResultBean> circleList) {
+                findCarView.CircleData(circleList);
+            }
+        });
+    }
+
+    @Override
+    public void CreateOrder(String url, int userId, String sessionId, String orderInfo, double totalPrice, int addressId) {
+        findCarModel.CreateOrder(url, userId, sessionId, orderInfo, totalPrice, addressId, new FindCarContach.CFindCarModel.OnCallBackOrder() {
+            @Override
+            public void CreateOrder() {
+                findCarView.CreateOrder();
             }
         });
     }

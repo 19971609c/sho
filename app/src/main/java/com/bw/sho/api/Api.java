@@ -31,4 +31,13 @@ public class Api {
     //添加地址
     //http://mobile.bwstudent.com/small/user/verify/v1/addReceiveAddress
     public static final String NewAddressUrl = "http://mobile.bwstudent.com/";
+    //地址列表
+    //http://172.17.8.100/small/user/verify/v1/receiveAddressList
+    public static final String AddressUrl = "http://mobile.bwstudent.com/";
+    //圈子列表
+    //http://172.17.8.100/small/circle/v1/findCircleList
+    public static final String CircleUrl = "http://mobile.bwstudent.com/";
+    //创建订单
+    //http://172.17.8.100/small/order/verify/v1/createOrder
+    public static final String CreateUrl = "http://mobile.bwstudent.com/";
 }

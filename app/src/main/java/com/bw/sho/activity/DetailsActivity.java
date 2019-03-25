@@ -11,6 +11,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,8 @@ import com.bw.sho.adapter.DetailsAdapter;
 import com.bw.sho.api.Api;
 import com.bw.sho.app.MeApp;
 import com.bw.sho.bean.AddCarinfo;
+import com.bw.sho.bean.Circleinfo;
+import com.bw.sho.bean.CreateOrder;
 import com.bw.sho.bean.Discussinfo;
 import com.bw.sho.bean.FindCarResclt;
 import com.bw.sho.bean.FindCarinfo;
@@ -91,6 +94,7 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     private int commodityId;
     private FindCarPresenter findCarPresenter;
     private FindCarRescltDao findCarRescltDao;
+    private int price;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -207,6 +211,7 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     @Override
     public void getDiscussData(Discussinfo.ResultBean result) {
         commodityId = result.getCommodityId();
+        price = result.getPrice();
         discuss_num.setText("当前评论总数 " + result.getCommentNum());
         money.setText("$" + result.getPrice());
         num.setText("已销售" + result.getSaleNum() + "件");
@@ -238,21 +243,6 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
 
     }
 
-    //添加购物车
-    @Override
-    public void getCar(SHZcarinfo shZcarinfo) {
-        if (shZcarinfo.getStatus().equals("0000")) {
-            Toast.makeText(DetailsActivity.this, shZcarinfo.getMessage(), Toast.LENGTH_SHORT).show();
-            //查询购物车
-            int userId = status.getInt("userId", 0);
-            String sessionId = status.getString("sessionId", null);
-            //查询购物车
-            findCarPresenter.getFindCar(Api.findCarUrl, userId, sessionId);
-        } else {
-            Toast.makeText(DetailsActivity.this, shZcarinfo.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
     //点击事件
     @Override
     public void onClick(View v) {
@@ -264,13 +254,8 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
                 if (status.getBoolean("statusId", false)) {
                     int userId = status.getInt("userId", 0);
                     String sessionId = status.getString("sessionId", null);
-                    //创建集合
-                    List<AddCarinfo> list = new ArrayList<>();
-                    list.add(new AddCarinfo(commodityId, 1));
-                    Gson gson = new Gson();
-                    String json = gson.toJson(list);
-                    //添加购物车
-                    discussPresenter.getCar(Api.CarUrl, userId, sessionId, json);
+                    //查询购物车
+                    findCarPresenter.getFindCar(Api.findCarUrl, userId, sessionId);
                 } else {
                     setLogin();
                 }
@@ -279,6 +264,13 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
                 if (status.getBoolean("statusId", false)) {
                     int userId = status.getInt("userId", 0);
                     String sessionId = status.getString("sessionId", null);
+                    List<CreateOrder> createOrders = new ArrayList<>();
+                    createOrders.add(new CreateOrder(commodityId, 1));
+                    Gson gson = new Gson();
+                    String json = gson.toJson(createOrders);
+                    //创建订单
+                    double money = price;
+                    findCarPresenter.CreateOrder(Api.CreateUrl, userId, sessionId, json, money,473);
                 } else {
                     setLogin();
                 }
@@ -286,16 +278,44 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         }
     }
 
+    //添加购物车
+    @Override
+    public void getCar(SHZcarinfo shZcarinfo) {
+        if (shZcarinfo.getStatus().equals("0000")) {
+            Toast.makeText(DetailsActivity.this, shZcarinfo.getMessage(), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(DetailsActivity.this, shZcarinfo.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private List<AddCarinfo> list2 = new ArrayList<>();
+
     //查询购物车
     @Override
     public void getFindCar(FindCarinfo findCarinfo) {
         List<FindCarResclt> result = findCarinfo.getResult();
-        if (result.size() > 0) {
-            for (int i = 0; i < result.size(); i++) {
-                FindCarResclt findCarResclt = result.get(i);
-                findCarRescltDao.insert(findCarResclt);
-            }
+        for (int i = 0; i < result.size(); i++) {
+            list2.add(new AddCarinfo(result.get(i).getCommodityId(), result.get(i).getCount()));
         }
+        list2.add(new AddCarinfo(commodityId, 1));
+        Gson gson = new Gson();
+        String json = gson.toJson(list2);
+        Log.i("json", json);
+        //
+        int userId = status.getInt("userId", 0);
+        String sessionId = status.getString("sessionId", null);
+        //添加购物车
+        discussPresenter.getCar(Api.CarUrl, userId, sessionId, json);
+    }
+
+    @Override
+    public void CircleData(List<Circleinfo.ResultBean> circleList) {
+
+    }
+
+    @Override
+    public void CreateOrder() {
+
     }
 
     //提示用户登录

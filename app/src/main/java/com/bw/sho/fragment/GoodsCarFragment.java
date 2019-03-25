@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.CheckBox;
@@ -14,12 +13,11 @@ import android.widget.TextView;
 import com.bw.sho.R;
 import com.bw.sho.adapter.FindCarAdapter;
 import com.bw.sho.api.Api;
-import com.bw.sho.app.MeApp;
 import com.bw.sho.base.BaseFragment;
+import com.bw.sho.bean.Circleinfo;
 import com.bw.sho.bean.FindCarResclt;
 import com.bw.sho.bean.FindCarinfo;
 import com.bw.sho.content.FindCarContach;
-import com.bw.sho.gen.FindCarRescltDao;
 import com.bw.sho.presenter.FindCarPresenter;
 
 import java.util.List;
@@ -29,7 +27,7 @@ import java.util.List;
  * @Date: 2019/3/20 19:21:49
  * @Description:
  */
-public class GoodsCarFragment extends BaseFragment implements View.OnClickListener {
+public class GoodsCarFragment extends BaseFragment implements View.OnClickListener, FindCarContach.FindCarView {
 
     private boolean isGetData = false;
     private RecyclerView recyclerView;
@@ -39,8 +37,7 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
     private CheckBox check;
     private FindCarAdapter findCarAdapter;
     private TextView money;
-    private FindCarRescltDao findCarRescltDao;
-    private List<FindCarResclt> findCarResclts;
+    private FindCarPresenter findCarPresenter;
 
     @Override
     protected int getLatoutId() {
@@ -50,9 +47,6 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     protected void initView(View view) {
-        //数据库
-        findCarRescltDao = MeApp.getInstance().getDaoSession().getFindCarRescltDao();
-        findCarRescltDao.deleteAll();
         status = getActivity().getSharedPreferences("status", getActivity().MODE_PRIVATE);
         recyclerView = view.findViewById(R.id.car_recycle);
         check = view.findViewById(R.id.car_check);
@@ -66,10 +60,14 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
         scroll.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light);
         //设置下拉时圆圈的背景颜色（这里设置成白色）
         scroll.setProgressBackgroundColorSchemeResource(android.R.color.white);
+        //查询数据库
+        findCarPresenter = new FindCarPresenter();
+        findCarPresenter.attachView(this);
 
         if (status.getBoolean("statusId", false)) {
             showCar();
         }
+
     }
 
     @Override
@@ -104,21 +102,29 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
         switch (v.getId()) {
             case R.id.car_check:
                 if (check.isChecked()) {
-                    if (findCarResclts != null) {
+
                         findCarAdapter.isCheck(true);
-                    }
+
                 } else {
-                    if (findCarResclts != null) {
+
                         findCarAdapter.isCheck(false);
-                    }
+
                 }
                 break;
         }
     }
 
     private void showCar() {
-        findCarResclts = findCarRescltDao.loadAll();
-        findCarAdapter = new FindCarAdapter(getActivity(), findCarResclts);
+        int userId = status.getInt("userId", 0);
+        String sessionId = status.getString("sessionId", null);
+        //查询购物车
+        findCarPresenter.getFindCar(Api.findCarUrl, userId, sessionId);
+    }
+
+    @Override
+    public void getFindCar(FindCarinfo findCarinfo) {
+        List<FindCarResclt> result = findCarinfo.getResult();
+        findCarAdapter = new FindCarAdapter(getActivity(), result);
         recyclerView.setAdapter(findCarAdapter);
         //设置
         findCarAdapter.setOncheckClick(new FindCarAdapter.OncheckClick() {
@@ -137,8 +143,19 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
     }
 
     @Override
+    public void CircleData(List<Circleinfo.ResultBean> circleList) {
+
+    }
+
+    @Override
+    public void CreateOrder() {
+
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        findCarPresenter.delachView(this);
     }
 
     //每次进入刷新
@@ -167,4 +184,6 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
     public void onResume() {
         super.onResume();
     }
+
+
 }
