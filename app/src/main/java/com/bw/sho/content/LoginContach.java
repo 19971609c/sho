@@ -5,6 +5,8 @@ import com.bw.sho.bean.Registerinfo;
 
 import java.util.Map;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 /**
  * @Auther: 不懂
  * @Date: 2019/3/16 16:59:48
@@ -31,17 +33,17 @@ public class LoginContach {
 
         //P层的请求数据方法
         //请求登录图
-        public void getLoginData(String url, Map<String, String> map);
+        public void getLoginData(String url, Map<String, String> map, CompositeDisposable disposable);
 
         //请求注册数据
-        public void getregisterData(String url, Map<String, String> map);
+        public void getregisterData(String url, Map<String, String> map,CompositeDisposable disposable);
     }
 
     //M层
     public interface LoginModel {
         //M层的请求数据的放发
         //请求登录图数据
-        public void getLoginData(String url, Map<String, String> map, OnCallBack onCallBack);
+        public void getLoginData(String url, Map<String, String> map,CompositeDisposable disposable, OnCallBack onCallBack);
 
         //返回数据方法
         public interface OnCallBack {
@@ -51,7 +53,7 @@ public class LoginContach {
         }
 
         //请求注册数据
-        public void getregisterData(String url, Map<String, String> map, OnBackregisterData onBackregisterData);
+        public void getregisterData(String url, Map<String, String> map,CompositeDisposable disposable, OnBackregisterData onBackregisterData);
 
         public interface OnBackregisterData {
             //返回注册数据

@@ -13,10 +13,18 @@ import com.bw.sho.bean.Addressinfo;
 import com.bw.sho.bean.SHZcarinfo;
 import com.bw.sho.content.AddressContach;
 import com.bw.sho.presenter.AddressPresenter;
+import com.lljjcoder.Interface.OnCityItemClickListener;
+import com.lljjcoder.bean.CityBean;
+import com.lljjcoder.bean.DistrictBean;
+import com.lljjcoder.bean.ProvinceBean;
+import com.lljjcoder.citywheel.CityConfig;
+import com.lljjcoder.style.citypickerview.CityPickerView;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 public class NewAddressActivity extends BaseActivity implements View.OnClickListener, AddressContach.AddressView {
 
@@ -28,6 +36,9 @@ public class NewAddressActivity extends BaseActivity implements View.OnClickList
     private AddressPresenter addressPresenter;
     private Map<String, String> map = new HashMap<>();
     private SharedPreferences status;
+    //订阅者管理器
+    CompositeDisposable disposable = new CompositeDisposable();
+    private CityPickerView mPicker;
 
     @Override
     protected int getLayoutId() {
@@ -36,11 +47,16 @@ public class NewAddressActivity extends BaseActivity implements View.OnClickList
 
     @Override
     protected void initView() {
+        //三级联动申明对象
+        mPicker = new CityPickerView();
+        mPicker.init(this);
+        //找控件
         add = findViewById(R.id.new_add);
         address = findViewById(R.id.new_address);
         phone = findViewById(R.id.new_phone);
         realName = findViewById(R.id.new_realName);
         zipCode = findViewById(R.id.new_zipCode);
+        findViewById(R.id.new_check).setOnClickListener(this);
         findViewById(R.id.new_but).setOnClickListener(this);
         //
         status = getSharedPreferences("status", MODE_PRIVATE);
@@ -70,8 +86,27 @@ public class NewAddressActivity extends BaseActivity implements View.OnClickList
                 if (!TextUtils.isEmpty(newAdd) && !TextUtils.isEmpty(newAddress) && !TextUtils.isEmpty(newPhone) && !TextUtils.isEmpty(newRealName) && !TextUtils.isEmpty(newZipCode)) {
                     int userId = status.getInt("userId", 0);
                     String sessionId = status.getString("sessionId", null);
-                    addressPresenter.getAddress(Api.NewAddressUrl, userId, sessionId, map);
+                    addressPresenter.getAddress(Api.NewAddressUrl, userId, sessionId, map, disposable);
                 }
+                break;
+            case R.id.new_check:
+                //添加默认的配置，不需要自己定义，当然也可以自定义相关熟悉，详细属性请看demo
+                CityConfig cityConfig = new CityConfig.Builder().build();
+                mPicker.setConfig(cityConfig);
+                //显示
+                mPicker.showCityPicker();
+                //监听选择点击事件及返回结果
+                mPicker.setOnCityItemClickListener(new OnCityItemClickListener() {
+                    @Override
+                    public void onSelected(ProvinceBean province, CityBean city, DistrictBean district) {
+                        address.setText(province.getName() + city.getName() + district.getName());
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
                 break;
         }
     }
@@ -96,6 +131,13 @@ public class NewAddressActivity extends BaseActivity implements View.OnClickList
     protected void onDestroy() {
         super.onDestroy();
         addressPresenter.detachView(this);
+        boolean disposed = disposable.isDisposed();
+        if (!disposed) {
+            //取消订阅
+            disposable.clear();
+            //解除订阅
+            disposable.dispose();
+        }
     }
 
 }

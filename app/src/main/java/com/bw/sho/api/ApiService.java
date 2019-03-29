@@ -2,7 +2,7 @@ package com.bw.sho.api;
 
 import com.bw.sho.bean.Addressinfo;
 import com.bw.sho.bean.Circleinfo;
-import com.bw.sho.bean.CreateOrder;
+import com.bw.sho.bean.CreatOrderinfo;
 import com.bw.sho.bean.Discussinfo;
 import com.bw.sho.bean.Displayinfo;
 import com.bw.sho.bean.FindCarinfo;
@@ -11,6 +11,7 @@ import com.bw.sho.bean.HomeShow;
 import com.bw.sho.bean.Logininfo;
 import com.bw.sho.bean.Registerinfo;
 import com.bw.sho.bean.SHZcarinfo;
+import com.bw.sho.bean.WholeOrderinfo;
 
 import java.util.Map;
 
@@ -82,6 +83,19 @@ public interface ApiService {
     //创建订单
     @FormUrlEncoded
     @POST("small/order/verify/v1/createOrder")
-    Flowable<SHZcarinfo> CreateOrder(@Header("userId") int userId, @Header("sessionId") String sessionId, @Field("orderInfo") String orderInfo, @Field("totalPrice") double totalPrice, @Field("addressId") int addressId);
+    Flowable<CreatOrderinfo> CreateOrder(@Header("userId") int userId, @Header("sessionId") String sessionId, @Field("orderInfo") String orderInfo, @Field("totalPrice") double totalPrice, @Field("addressId") int addressId);
+
+    //商品详情数据
+    @GET("small/user/verify/v1/findUserWallet")
+    Flowable<Discussinfo> Waller(@Header("userId") int userId, @Header("sessionId") String sessionId);
+
+    //商品详情数据
+    @GET("small/order/verify/v1/findOrderListByStatus")
+    Flowable<WholeOrderinfo> Whole(@Header("userId") int userId, @Header("sessionId") String sessionId, @Query("status") int status, @Query("page") int page, @Query("count") int count);
+
+    //支付
+    @FormUrlEncoded
+    @POST("small/order/verify/v1/pay")
+    Flowable<SHZcarinfo> Payment(@Header("userId") int userId, @Header("sessionId") String sessionId, @Field("orderId") String orderId, @Field("payType") int payType);
 
 }

@@ -12,12 +12,15 @@ import com.bw.sho.api.Api;
 import com.bw.sho.base.BaseFragment;
 import com.bw.sho.base.OnLoadMoreListener;
 import com.bw.sho.bean.Circleinfo;
+import com.bw.sho.bean.CreatOrderinfo;
 import com.bw.sho.bean.FindCarinfo;
 import com.bw.sho.content.FindCarContach;
 import com.bw.sho.presenter.FindCarPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 /**
  * @Auther: 不懂
@@ -33,26 +36,18 @@ public class CircleFragment extends BaseFragment implements FindCarContach.FindC
     private int count = 10;
     private Handler handler = new Handler();
     private List<Circleinfo.ResultBean> list = null;
-
-    @Override
-    protected void stopLoad() {
-
-    }
-
-    @Override
-    protected void initListener() {
-
-    }
+    //订阅管理器
+    CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected void initData() {
-        findCarPresenter.CircleData(Api.CircleUrl, pages, count);
+        findCarPresenter.CircleData(Api.CircleUrl, pages, count, disposable);
 
         scroll.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 pages = 1;
-                findCarPresenter.CircleData(Api.CircleUrl, pages, count);
+                findCarPresenter.CircleData(Api.CircleUrl, pages, count, disposable);
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -65,7 +60,7 @@ public class CircleFragment extends BaseFragment implements FindCarContach.FindC
             @Override
             protected void onLoading(int countItem, int lastItem) {
                 pages++;
-                findCarPresenter.CircleData(Api.CircleUrl, pages, count);
+                findCarPresenter.CircleData(Api.CircleUrl, pages, count, disposable);
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -116,7 +111,7 @@ public class CircleFragment extends BaseFragment implements FindCarContach.FindC
     }
 
     @Override
-    public void CreateOrder() {
+    public void CreateOrder(CreatOrderinfo shZcarinfo) {
 
     }
 
@@ -124,6 +119,13 @@ public class CircleFragment extends BaseFragment implements FindCarContach.FindC
     public void onDestroy() {
         super.onDestroy();
         findCarPresenter.delachView(this);
+        boolean disposed = disposable.isDisposed();
+        if (!disposed) {
+            //取消订阅
+            disposable.clear();
+            //解除订阅
+            disposable.dispose();
+        }
     }
 
 

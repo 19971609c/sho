@@ -9,6 +9,8 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 /**
  * @Auther: 不懂
  * @Date: 2019/3/16 17:08:56
@@ -36,8 +38,8 @@ public class LoginPresenter implements LoginContach.LoginPresenter<LoginContach.
 
     //登录
     @Override
-    public void getLoginData(String url, Map<String, String> map) {
-        loginModel.getLoginData(url, map, new LoginContach.LoginModel.OnCallBack() {
+    public void getLoginData(String url, Map<String, String> map, CompositeDisposable disposable) {
+        loginModel.getLoginData(url, map, disposable, new LoginContach.LoginModel.OnCallBack() {
             @Override
             public void getLoginData(Logininfo body) {
                 loginView.getLoginData(body);
@@ -47,8 +49,8 @@ public class LoginPresenter implements LoginContach.LoginPresenter<LoginContach.
 
     //注册
     @Override
-    public void getregisterData(String url, Map<String, String> map) {
-        loginModel.getregisterData(url, map, new LoginContach.LoginModel.OnBackregisterData() {
+    public void getregisterData(String url, Map<String, String> map, CompositeDisposable disposable) {
+        loginModel.getregisterData(url, map, disposable, new LoginContach.LoginModel.OnBackregisterData() {
             @Override
             public void getregisterData(Registerinfo register) {
                 loginView.getregisterData(register);

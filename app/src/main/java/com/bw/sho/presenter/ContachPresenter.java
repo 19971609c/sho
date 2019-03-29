@@ -9,6 +9,8 @@ import com.bw.sho.model.ContachModel;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 /**
  * @Auther: 不懂
  * @Date: 2019/3/16 17:08:56
@@ -40,8 +42,8 @@ public class ContachPresenter implements Contach.ContachPresenter<Contach.Contac
 
     //请求轮播图
     @Override
-    public void getBannerData(String url) {
-        contachModel.getBannerData(url, new Contach.ContachModel.OnCallBack() {
+    public void getBannerData(String url, CompositeDisposable disposable) {
+        contachModel.getBannerData(url, disposable, new Contach.ContachModel.OnCallBack() {
             @Override
             public void backBannerData(HomeBanner body) {
                 //放回V层数据
@@ -52,8 +54,8 @@ public class ContachPresenter implements Contach.ContachPresenter<Contach.Contac
 
     //首页数据
     @Override
-    public void getHomeData(String url) {
-        contachModel.getHomeData(url, new Contach.ContachModel.OnBackHomeData() {
+    public void getHomeData(String url, CompositeDisposable disposable) {
+        contachModel.getHomeData(url, disposable, new Contach.ContachModel.OnBackHomeData() {
             @Override
             public void backHomeData(HomeShow body) {
                 contachView.getHomeData(body);
@@ -63,8 +65,8 @@ public class ContachPresenter implements Contach.ContachPresenter<Contach.Contac
 
     //关键值数据
     @Override
-    public void getDisplay(String url, String keyword, int page, int count) {
-        contachModel.getDisplay(url, keyword, page, count, new Contach.ContachModel.OnBackDisplayData() {
+    public void getDisplay(String url, String keyword, int page, int count, CompositeDisposable disposable) {
+        contachModel.getDisplay(url, keyword, page, count, disposable, new Contach.ContachModel.OnBackDisplayData() {
             @Override
             public void backDisplayData(Displayinfo displayinfo) {
                 contachView.getDisplay(displayinfo);

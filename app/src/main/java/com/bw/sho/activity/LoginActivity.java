@@ -8,6 +8,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.bw.sho.R;
 import com.bw.sho.api.Api;
 import com.bw.sho.base.BaseActivity;
@@ -20,6 +21,8 @@ import com.bw.sho.utils.PhoneUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 public class LoginActivity extends BaseActivity implements View.OnClickListener, LoginContach.LoginView {
 
     private EditText log_phone;
@@ -29,6 +32,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private LoginPresenter loginPresenter;
     private Map<String, String> map = new HashMap<>();
     private SharedPreferences login;
+    //订阅者管理器
+    CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected int getLayoutId() {
@@ -93,7 +98,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 edit.putString("phone", phone);
                 edit.putString("pwd", pwd);
                 edit.commit();
-                loginPresenter.getLoginData(Api.LoginUrl,map);
+                loginPresenter.getLoginData(Api.LoginUrl, map, disposable);
                 break;
             case R.id.log_register:
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
@@ -113,9 +118,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             edit1.commit();
             SharedPreferences.Editor edit = preferences.edit();
             //存登录成功后的数据
-            edit.putBoolean("statusId",true);//登录成功
-            edit.putString("headPic",body.getResult().getHeadPic());//头像地址
-            edit.putString("nickName",body.getResult().getNickName());//昵称
+            edit.putBoolean("statusId", true);//登录成功
+            edit.putString("headPic", body.getResult().getHeadPic());//头像地址
+            edit.putString("nickName", body.getResult().getNickName());//昵称
             edit.putInt("userId", body.getResult().getUserId());//用户Id
             edit.putInt("sex", body.getResult().getSex());//性别
             edit.putString("sessionId", body.getResult().getSessionId());//登录凭证
@@ -137,5 +142,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     protected void onDestroy() {
         super.onDestroy();
         loginPresenter.delachView(this);
+        boolean disposed = disposable.isDisposed();
+        if (!disposed) {
+            //取消订阅
+            disposable.clear();
+            //解除订阅
+            disposable.dispose();
+        }
     }
 }

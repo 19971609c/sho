@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.bw.sho.R;
 import com.bw.sho.api.Api;
 import com.bw.sho.base.BaseActivity;
@@ -16,12 +17,16 @@ import com.bw.sho.utils.PhoneUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 public class RegisterActivity extends BaseActivity implements View.OnClickListener, LoginContach.LoginView {
 
     private EditText re_phone;
     private EditText re_pwd;
     private Map<String, String> map = new HashMap<>();
     private LoginPresenter loginPresenter;
+    //订阅者管理器
+    CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected void initData() {
@@ -64,7 +69,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                 map.put("phone", phone);
                 map.put("pwd", pwd);
                 //调用Presenter方法
-                loginPresenter.getregisterData(Api.RegisterUrl, map);
+                loginPresenter.getregisterData(Api.RegisterUrl, map, disposable);
                 break;
         }
     }
@@ -94,5 +99,12 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     protected void onDestroy() {
         super.onDestroy();
         loginPresenter.delachView(this);
+        boolean disposed = disposable.isDisposed();
+        if (!disposed) {
+            //取消订阅
+            disposable.clear();
+            //解除订阅
+            disposable.dispose();
+        }
     }
 }

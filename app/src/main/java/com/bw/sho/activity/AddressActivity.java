@@ -18,6 +18,8 @@ import com.bw.sho.presenter.AddressPresenter;
 
 import java.util.List;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 public class AddressActivity extends BaseActivity implements View.OnClickListener, AddressContach.AddressView {
 
     private RecyclerView recycler;
@@ -25,6 +27,8 @@ public class AddressActivity extends BaseActivity implements View.OnClickListene
     private SharedPreferences status;
     private int userId;
     private String sessionId;
+    //订阅者管理器
+    CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected int getLayoutId() {
@@ -51,7 +55,7 @@ public class AddressActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void initData() {
         //获取数据
-        addressPresenter.addressList(Api.AddressUrl, userId, sessionId);
+        addressPresenter.addressList(Api.AddressUrl, userId, sessionId, disposable);
     }
 
     @Override
@@ -77,12 +81,19 @@ public class AddressActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void onStart() {
         super.onStart();
-        addressPresenter.addressList(Api.AddressUrl, userId, sessionId);
+        addressPresenter.addressList(Api.AddressUrl, userId, sessionId, disposable);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         addressPresenter.detachView(this);
+        boolean disposed = disposable.isDisposed();
+        if (!disposed) {
+            //取消订阅
+            disposable.clear();
+            //解除订阅
+            disposable.dispose();
+        }
     }
 }

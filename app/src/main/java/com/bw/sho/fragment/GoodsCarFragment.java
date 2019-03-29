@@ -15,12 +15,15 @@ import com.bw.sho.adapter.FindCarAdapter;
 import com.bw.sho.api.Api;
 import com.bw.sho.base.BaseFragment;
 import com.bw.sho.bean.Circleinfo;
+import com.bw.sho.bean.CreatOrderinfo;
 import com.bw.sho.bean.FindCarResclt;
 import com.bw.sho.bean.FindCarinfo;
 import com.bw.sho.content.FindCarContach;
 import com.bw.sho.presenter.FindCarPresenter;
 
 import java.util.List;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 /**
  * @Auther: 不懂
@@ -38,6 +41,8 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
     private FindCarAdapter findCarAdapter;
     private TextView money;
     private FindCarPresenter findCarPresenter;
+    //订阅管理器
+    CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected int getLatoutId() {
@@ -86,29 +91,15 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
         });
     }
 
-    @Override
-    protected void initListener() {
-
-    }
-
-    @Override
-    protected void stopLoad() {
-
-    }
-
     //点击加载数据
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.car_check:
                 if (check.isChecked()) {
-
-                        findCarAdapter.isCheck(true);
-
+                    findCarAdapter.isCheck(true);
                 } else {
-
-                        findCarAdapter.isCheck(false);
-
+                    findCarAdapter.isCheck(false);
                 }
                 break;
         }
@@ -118,7 +109,7 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
         int userId = status.getInt("userId", 0);
         String sessionId = status.getString("sessionId", null);
         //查询购物车
-        findCarPresenter.getFindCar(Api.findCarUrl, userId, sessionId);
+        findCarPresenter.getFindCar(Api.findCarUrl, userId, sessionId, disposable);
     }
 
     @Override
@@ -148,14 +139,8 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
     }
 
     @Override
-    public void CreateOrder() {
+    public void CreateOrder(CreatOrderinfo shZcarinfo) {
 
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        findCarPresenter.delachView(this);
     }
 
     //每次进入刷新
@@ -185,5 +170,17 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
         super.onResume();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        findCarPresenter.delachView(this);
+        boolean disposed = disposable.isDisposed();
+        if (!disposed) {
+            //取消订阅
+            disposable.clear();
+            //解除订阅
+            disposable.dispose();
+        }
+    }
 
 }

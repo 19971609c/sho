@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
 import com.bw.sho.R;
 
 /**
@@ -79,10 +80,8 @@ public class SearchBoxView extends LinearLayout implements TextWatcher, View.OnC
                 //获取EditText值
                 String texts = text.getText().toString().trim();
                 //返回EditText值
-                if (!TextUtils.isEmpty(texts)) {
-                    if (onBackSearchText != null) {
-                        onBackSearchText.getText(texts);
-                    }
+                if (onBackSearchText != null) {
+                    onBackSearchText.getText(texts);
                 }
                 break;
             case R.id.search_text:

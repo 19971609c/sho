@@ -31,17 +31,15 @@ import com.bumptech.glide.Glide;
 import com.bw.sho.R;
 import com.bw.sho.adapter.DetailsAdapter;
 import com.bw.sho.api.Api;
-import com.bw.sho.app.MeApp;
 import com.bw.sho.bean.AddCarinfo;
 import com.bw.sho.bean.Circleinfo;
-import com.bw.sho.bean.CreateOrder;
+import com.bw.sho.bean.CreatOrderinfo;
 import com.bw.sho.bean.Discussinfo;
 import com.bw.sho.bean.FindCarResclt;
 import com.bw.sho.bean.FindCarinfo;
 import com.bw.sho.bean.SHZcarinfo;
 import com.bw.sho.content.DiscussContract;
 import com.bw.sho.content.FindCarContach;
-import com.bw.sho.gen.FindCarRescltDao;
 import com.bw.sho.presenter.DiscussPresenter;
 import com.bw.sho.presenter.FindCarPresenter;
 import com.bw.sho.view.IdeaScrollView;
@@ -53,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.disposables.CompositeDisposable;
 import qiu.niorgai.StatusBarCompat;
 
 public class DetailsActivity extends AppCompatActivity implements DiscussContract.DiscussView, View.OnClickListener, FindCarContach.FindCarView {
@@ -93,8 +92,12 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     private SharedPreferences status;
     private int commodityId;
     private FindCarPresenter findCarPresenter;
-    private FindCarRescltDao findCarRescltDao;
     private int price;
+    private Discussinfo.ResultBean result;
+    //订阅者管理器
+    CompositeDisposable disposable = new CompositeDisposable();
+    private int userId;
+    private String sessionId;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -104,6 +107,9 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         StatusBarCompat.translucentStatusBar(this);
         //验证是否登录
         status = getSharedPreferences("status", MODE_PRIVATE);
+        userId = status.getInt("userId", 0);
+        sessionId = status.getString("sessionId", null);
+        Log.i("userid", userId + "-----" + sessionId);
         //传过来的Id
         Intent intent = getIntent();
         int commodityId = intent.getIntExtra("commodityId", 0);
@@ -198,19 +204,21 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         findCarPresenter.attachView(this);
         discussPresenter.attachView(this);
 
-        findCarRescltDao = MeApp.getInstance().getDaoSession().getFindCarRescltDao();
     }
 
     //请求数据
     private void initData(int commodityId) {
         //请求数据
-        discussPresenter.getDiscussData(Api.DiscussUrl, commodityId);
+        discussPresenter.getDiscussData(Api.DiscussUrl, commodityId, disposable);
     }
 
     //接收到的值
     @Override
     public void getDiscussData(Discussinfo.ResultBean result) {
+        this.result = result;
+        //---------------------------------------------------------------
         commodityId = result.getCommodityId();
+        //----------------------------------------------------------------
         price = result.getPrice();
         discuss_num.setText("当前评论总数 " + result.getCommentNum());
         money.setText("$" + result.getPrice());
@@ -252,25 +260,17 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
                 break;
             case R.id.de_shopping://加入购物车
                 if (status.getBoolean("statusId", false)) {
-                    int userId = status.getInt("userId", 0);
-                    String sessionId = status.getString("sessionId", null);
                     //查询购物车
-                    findCarPresenter.getFindCar(Api.findCarUrl, userId, sessionId);
+                    findCarPresenter.getFindCar(Api.findCarUrl, userId, sessionId, disposable);
                 } else {
                     setLogin();
                 }
                 break;
             case R.id.de_order:
                 if (status.getBoolean("statusId", false)) {
-                    int userId = status.getInt("userId", 0);
-                    String sessionId = status.getString("sessionId", null);
-                    List<CreateOrder> createOrders = new ArrayList<>();
-                    createOrders.add(new CreateOrder(commodityId, 1));
-                    Gson gson = new Gson();
-                    String json = gson.toJson(createOrders);
-                    //创建订单
-                    double money = price;
-                    findCarPresenter.CreateOrder(Api.CreateUrl, userId, sessionId, json, money,473);
+                    Intent intent = new Intent(DetailsActivity.this, ConfirmOrderActivity.class);
+                    intent.putExtra("result", result);
+                    startActivity(intent);
                 } else {
                     setLogin();
                 }
@@ -301,11 +301,8 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         Gson gson = new Gson();
         String json = gson.toJson(list2);
         Log.i("json", json);
-        //
-        int userId = status.getInt("userId", 0);
-        String sessionId = status.getString("sessionId", null);
         //添加购物车
-        discussPresenter.getCar(Api.CarUrl, userId, sessionId, json);
+        discussPresenter.getCar(Api.CarUrl, userId, sessionId, json, disposable);
     }
 
     @Override
@@ -314,7 +311,7 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     }
 
     @Override
-    public void CreateOrder() {
+    public void CreateOrder(CreatOrderinfo shZcarinfo) {
 
     }
 
@@ -359,7 +356,6 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         popupWindow.setAnimationStyle(R.style.anim_popup_centerbar);
         // 设置PopupWindow显示在中间
         popupWindow.showAtLocation(contentView, Gravity.CENTER, 0, 0);
-
     }
 
 
@@ -403,6 +399,13 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
         super.onDestroy();
         discussPresenter.detachView(this);
         findCarPresenter.delachView(this);
+        boolean disposed = disposable.isDisposed();
+        if (!disposed) {
+            //取消订阅
+            disposable.clear();
+            //解除订阅
+            disposable.dispose();
+        }
     }
 
 

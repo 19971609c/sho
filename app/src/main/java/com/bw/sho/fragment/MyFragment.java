@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.bw.sho.R;
 import com.bw.sho.activity.AddressActivity;
 import com.bw.sho.activity.LoginActivity;
+import com.bw.sho.activity.WalletActivity;
 import com.bw.sho.base.BaseFragment;
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -36,25 +37,17 @@ public class MyFragment extends BaseFragment implements View.OnClickListener {
         useimage = view.findViewById(R.id.my_image);
         nkname = view.findViewById(R.id.my_nikname);
         LinearLayout address = view.findViewById(R.id.my_address);
+        LinearLayout waller = view.findViewById(R.id.my_wallet);
 
         useimage.setOnClickListener(this);
         address.setOnClickListener(this);
+        waller.setOnClickListener(this);
     }
 
     @Override
     protected void initData() {
         useimage.setImageURI(status.getString("headPic", ""));
         nkname.setText(status.getString("nickName", "点击头像登录"));
-    }
-
-    @Override
-    protected void stopLoad() {
-
-    }
-
-    @Override
-    protected void initListener() {
-
     }
 
     @Override
@@ -68,6 +61,11 @@ public class MyFragment extends BaseFragment implements View.OnClickListener {
             case R.id.my_address:
                 if (status.getBoolean("statusId", false)) {
                     startActivity(new Intent(getActivity(), AddressActivity.class));
+                }
+                break;
+            case R.id.my_wallet:
+                if (status.getBoolean("statusId", false)) {
+                    startActivity(new Intent(getActivity(), WalletActivity.class));
                 }
                 break;
         }

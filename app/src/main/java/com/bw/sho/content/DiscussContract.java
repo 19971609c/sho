@@ -3,6 +3,8 @@ package com.bw.sho.content;
 import com.bw.sho.bean.Discussinfo;
 import com.bw.sho.bean.SHZcarinfo;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 /**
  * @Auther: 不懂
  * @Date: 2019/3/19 10:15:25
@@ -29,16 +31,16 @@ public class DiscussContract {
 
         //p请求数据
         //详情
-        public void getDiscussData(String url, int commodityId);
+        public void getDiscussData(String url, int commodityId, CompositeDisposable disposable);
 
         //加入购物车
-        public void getCar(String carUrl, int userId, String sessionId, String data);
+        public void getCar(String carUrl, int userId, String sessionId, String data, CompositeDisposable disposable);
     }
 
     public interface DiscussModel {
         //m请求数据
         //详情
-        public void getDiscussData(String url, int commodityId, backDiscussData backDiscussData);
+        public void getDiscussData(String url, int commodityId, CompositeDisposable disposable, backDiscussData backDiscussData);
 
         //m返回数据给p
         //详情
@@ -48,7 +50,7 @@ public class DiscussContract {
         }
 
         //购物车
-        public void getCar(String carUrl, int userId, String sessionId, String data, backCarData backCarData);
+        public void getCar(String carUrl, int userId, String sessionId, String data, CompositeDisposable disposable, backCarData backCarData);
 
         //购物车
         public interface backCarData {

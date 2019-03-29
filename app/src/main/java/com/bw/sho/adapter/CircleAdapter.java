@@ -3,7 +3,6 @@ package com.bw.sho.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,6 +13,8 @@ import com.bw.sho.R;
 import com.bw.sho.bean.Circleinfo;
 import com.facebook.drawee.view.SimpleDraweeView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,9 +43,8 @@ public class CircleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int position) {
-        Circleinfo.ResultBean resultBean = circleList.get(position);
-        String[] split = resultBean.getImage().split(",");
-        Log.i("hhh", split.length + "");
+        String image = circleList.get(position).getImage();
+        String[] split = image.split(",");
         if (split.length == TYPE0) {
             return TYPE0;
         } else if (split.length == TYPE1) {
@@ -78,52 +78,82 @@ public class CircleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+        String image = circleList.get(i).getImage();
+        String[] split2 = image.split(",");
 
-        if (viewHolder instanceof OneHolder) {
-            OneHolder oneHolder = (OneHolder) viewHolder;
-            oneHolder.onename.setText(circleList.get(i).getNickName());
-            oneHolder.onetime.setText(circleList.get(i).getCreateTime() + "");
-            oneHolder.onetitle.setText(circleList.get(i).getContent());
-            oneHolder.onesd.setImageURI(circleList.get(i).getImage());
-            Glide.with(context).load(circleList.get(i).getHeadPic()).into(oneHolder.oneimage);
+        if (split2.length == TYPE0) {
+            if (viewHolder instanceof OneHolder) {
+                OneHolder oneHolder = (OneHolder) viewHolder;
+                oneHolder.onename.setText(circleList.get(i).getNickName());
+                //
+                long createTime = circleList.get(i).getCreateTime();
+                Date date = new Date(createTime);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                String format1 = format.format(date);
+                //
+                oneHolder.onetime.setText(format1);
+                oneHolder.onetitle.setText(circleList.get(i).getContent());
+                oneHolder.onesd.setImageURI(circleList.get(i).getHeadPic());
+                Glide.with(context).load(split2[0]).into(oneHolder.oneimage);
+            }
+        }
+        if (split2.length == TYPE1) {
+            if (viewHolder instanceof TwoHolder) {
+                TwoHolder twoHolder = (TwoHolder) viewHolder;
+                twoHolder.twoname.setText(circleList.get(i).getNickName());
+                //时间转换
+                long createTime = circleList.get(i).getCreateTime();
+                Date date = new Date(createTime);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                String format1 = format.format(date);
+                //
+                twoHolder.twotime.setText(format1);
+                twoHolder.twotitle.setText(circleList.get(i).getContent());
+                twoHolder.twosd.setImageURI(circleList.get(i).getHeadPic());
+                Glide.with(context).load(split2[0]).into(twoHolder.twoimage);
+                Glide.with(context).load(split2[1]).into(twoHolder.twoimagetwo);
+            }
         }
 
-        if (viewHolder instanceof TwoHolder) {
-            TwoHolder twoHolder = (TwoHolder) viewHolder;
-            twoHolder.twoname.setText(circleList.get(i).getNickName());
-            twoHolder.twotime.setText(circleList.get(i).getCreateTime() + "");
-            twoHolder.twotitle.setText(circleList.get(i).getContent());
-            twoHolder.twosd.setImageURI(circleList.get(i).getImage());
-            String[] split = circleList.get(i).getHeadPic().split(",");
-            Log.i("hhhh", split.length + ""+"s");
-            Glide.with(context).load(split[0]).into(twoHolder.twoimage);
-            /* Glide.with(context).load(split[1]).into(twoHolder.twoimagetwo);*/
+        if (split2.length == TYPE2) {
+            if (viewHolder instanceof ThreeHolder) {
+                ThreeHolder threeHolder = (ThreeHolder) viewHolder;
+                threeHolder.threename.setText(circleList.get(i).getNickName());
+                //
+                long createTime = circleList.get(i).getCreateTime();
+                Date date = new Date(createTime);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                String format1 = format.format(date);
+                //
+                threeHolder.threetime.setText(format1);
+                threeHolder.threetitle.setText(circleList.get(i).getContent());
+                threeHolder.threesd.setImageURI(circleList.get(i).getHeadPic());
+                Glide.with(context).load(split2[0]).into(threeHolder.threeone);
+                Glide.with(context).load(split2[1]).into(threeHolder.threetwo);
+                Glide.with(context).load(split2[2]).into(threeHolder.threthree);
+            }
         }
 
-        if (viewHolder instanceof ThreeHolder) {
-            ThreeHolder threeHolder = (ThreeHolder) viewHolder;
-            threeHolder.threename.setText(circleList.get(i).getNickName());
-            threeHolder.threetime.setText(circleList.get(i).getCreateTime() + "");
-            threeHolder.threetitle.setText(circleList.get(i).getContent());
-            threeHolder.threesd.setImageURI(circleList.get(i).getImage());
-            String[] split = circleList.get(i).getHeadPic().split(",");
-            Glide.with(context).load(split[0]).into(threeHolder.threeone);
-           /* Glide.with(context).load(split[1]).into(threeHolder.threetwo);
-            Glide.with(context).load(split[2]).into(threeHolder.threthree);*/
+        if (split2.length >= 4) {
+            if (viewHolder instanceof FourHolder) {
+                FourHolder fourHolder = (FourHolder) viewHolder;
+                fourHolder.fourname.setText(circleList.get(i).getNickName());
+                //
+                long createTime = circleList.get(i).getCreateTime();
+                Date date = new Date(createTime);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                String format1 = format.format(date);
+                //
+                fourHolder.fourtime.setText(format1);
+                fourHolder.fourtitle.setText(circleList.get(i).getContent());
+                fourHolder.foursd.setImageURI(circleList.get(i).getHeadPic());
+                Glide.with(context).load(split2[0]).into(fourHolder.fourone);
+                Glide.with(context).load(split2[1]).into(fourHolder.fouretwo);
+                Glide.with(context).load(split2[2]).into(fourHolder.fourhree);
+                Glide.with(context).load(split2[3]).into(fourHolder.fourfour);
+            }
         }
 
-        if (viewHolder instanceof FourHolder) {
-            FourHolder fourHolder = (FourHolder) viewHolder;
-            fourHolder.fourname.setText(circleList.get(i).getNickName());
-            fourHolder.fourtime.setText(circleList.get(i).getCreateTime() + "");
-            fourHolder.fourtitle.setText(circleList.get(i).getContent());
-            fourHolder.foursd.setImageURI(circleList.get(i).getImage());
-            String[] split = circleList.get(i).getHeadPic().split(",");
-            Glide.with(context).load(split[0]).into(fourHolder.fourone);
-            /*Glide.with(context).load(split[1]).into(fourHolder.fouretwo);
-            Glide.with(context).load(split[2]).into(fourHolder.fourhree);
-            Glide.with(context).load(split[3]).into(fourHolder.fourfour);*/
-        }
     }
 
     @Override

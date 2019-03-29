@@ -10,6 +10,8 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 /**
  * @Auther: 不懂
  * @Date: 2019/3/22 21:22:52
@@ -35,8 +37,8 @@ public class AddressPresenter implements AddressContach.AddressPresenter<Address
     //添加地址
 
     @Override
-    public void getAddress(String url, int userId, String sessionId, Map<String, String> map) {
-        addressModel.getAddress(url, userId, sessionId, map, new AddressContach.AddressMdel.BackAddress() {
+    public void getAddress(String url, int userId, String sessionId, Map<String, String> map, CompositeDisposable disposable) {
+        addressModel.getAddress(url, userId, sessionId, map, disposable, new AddressContach.AddressMdel.BackAddress() {
             @Override
             public void getAddress(SHZcarinfo shZcarinfo) {
                 addressView.getAddress(shZcarinfo);
@@ -46,8 +48,8 @@ public class AddressPresenter implements AddressContach.AddressPresenter<Address
 
     //地址列表
     @Override
-    public void addressList(String url, int userId, String sessionId) {
-        addressModel.addressList(url, userId, sessionId, new AddressContach.AddressMdel.BackAddressList() {
+    public void addressList(String url, int userId, String sessionId, CompositeDisposable disposable) {
+        addressModel.addressList(url, userId, sessionId, disposable, new AddressContach.AddressMdel.BackAddressList() {
             @Override
             public void AddressList(List<Addressinfo.ResultBean> addressList) {
                 addressView.AddressList(addressList);

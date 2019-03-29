@@ -50,15 +50,8 @@ public abstract class BaseFragment extends Fragment {
             if (!isLoadData) {
                 //加载数据
                 initData();
-                //事件监听
-                initListener();
                 //加载过数据设置为true
                 isLoadData = true;
-            }
-        } else {
-            if (isLoadData) {
-                //停止加载
-                stopLoad();
             }
         }
     }
@@ -73,12 +66,6 @@ public abstract class BaseFragment extends Fragment {
 
     //加载数据
     protected abstract void initData();
-
-    //事件监听
-    protected abstract void initListener();
-
-    //停止加载
-    protected abstract void stopLoad();
 
 
     //销毁视图

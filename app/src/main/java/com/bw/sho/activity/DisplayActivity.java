@@ -27,6 +27,8 @@ import com.bw.sho.view.SearchBoxView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 public class DisplayActivity extends BaseActivity implements View.OnClickListener, Contach.ContachView {
 
     private RecyclerView recycle;
@@ -39,8 +41,9 @@ public class DisplayActivity extends BaseActivity implements View.OnClickListene
     private Handler handler = new Handler();
     private String diplay;
     private List<Displayinfo.ResultBean> list = null;
-    private ImageView iamge;
-    private TextView title;
+    private ImageView image;
+    //订阅者管理器
+    CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected int getLayoutId() {
@@ -52,9 +55,8 @@ public class DisplayActivity extends BaseActivity implements View.OnClickListene
         TextView back = findViewById(R.id.di_back);
         recycle = findViewById(R.id.di_recycle);
         searchBox = findViewById(R.id.di_search);
+        image = findViewById(R.id.dis_image);
         scroll = findViewById(R.id.di_scro);
-        iamge = findViewById(R.id.di_image);
-        title = findViewById(R.id.di_title);
         //设置下拉时圆圈的颜色（可以尤多种颜色拼成）
         scroll.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light);
         //设置下拉时圆圈的背景颜色（这里设置成白色）
@@ -74,15 +76,22 @@ public class DisplayActivity extends BaseActivity implements View.OnClickListene
         //请求数据
         contachPresenter = new ContachPresenter();
         contachPresenter.attachView(this);
-        contachPresenter.getDisplay(Api.DisplayUrl, diplay, page, 6);
+        contachPresenter.getDisplay(Api.DisplayUrl, diplay, page, 6, disposable);
         //数据库
         sqlDao = new SqlDao(this);
         searchBox.setOnBackSearchText(new SearchBoxView.OnBackSearchText() {
             @Override
             public void getText(String text) {
                 sqlDao.add(text);
-                diplay = text;
-                contachPresenter.getDisplay(Api.DisplayUrl, diplay, page, 6);
+                if (!text.equals("")) {
+                    image.setVisibility(View.GONE);
+                    recycle.setVisibility(View.VISIBLE);
+                    diplay = text;
+                    contachPresenter.getDisplay(Api.DisplayUrl, diplay, page, 6, disposable);
+                } else {
+                    image.setVisibility(View.VISIBLE);
+                    recycle.setVisibility(View.GONE);
+                }
             }
         });
         //下拉刷新
@@ -90,7 +99,7 @@ public class DisplayActivity extends BaseActivity implements View.OnClickListene
             @Override
             public void onRefresh() {
                 page = 1;
-                contachPresenter.getDisplay(Api.DisplayUrl, diplay, page, 6);
+                contachPresenter.getDisplay(Api.DisplayUrl, diplay, page, 6, disposable);
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -104,7 +113,7 @@ public class DisplayActivity extends BaseActivity implements View.OnClickListene
             @Override
             protected void onLoading(int countItem, int lastItem) {
                 page++;
-                contachPresenter.getDisplay(Api.DisplayUrl, diplay, page, 6);
+                contachPresenter.getDisplay(Api.DisplayUrl, diplay, page, 6, disposable);
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -134,43 +143,40 @@ public class DisplayActivity extends BaseActivity implements View.OnClickListene
     @Override
     public void getDisplay(Displayinfo displayinfo) {
         String status = displayinfo.getStatus();
-        if (status.equals("0000")) {
-            //显示隐藏
-            iamge.setVisibility(View.GONE);
-            title.setVisibility(View.GONE);
-            scroll.setVisibility(View.VISIBLE);
-            List<Displayinfo.ResultBean> result = displayinfo.getResult();
-            //判断有没有更多
-            if (result.size() == 0) {
-                Toast.makeText(DisplayActivity.this, "没有更多数据了", Toast.LENGTH_SHORT).show();
-            }
-            Log.i("result", result.size() + "");
-            if (page == 1) {
-                list = new ArrayList<>();
-            }
-            list.addAll(result);
-            displayAdapter = new DisplayAdapter(this, list);
-            recycle.setAdapter(displayAdapter);
-            recycle.scrollToPosition(list.size() - result.size() - 2);
-            displayAdapter.getCallBackId(new DisplayAdapter.CallBackId() {
-                @Override
-                public void getId(int id) {
-                    Intent intent = new Intent(DisplayActivity.this, DetailsActivity.class);
-                    intent.putExtra("commodityId", id);
-                    startActivity(intent);
-                }
-            });
-        } else if (status.equals("1001")) {
-            iamge.setVisibility(View.VISIBLE);
-            title.setVisibility(View.VISIBLE);
-            scroll.setVisibility(View.GONE);
+
+        List<Displayinfo.ResultBean> result = displayinfo.getResult();
+        //判断有没有更多
+        if (result.size() == 0) {
+            Toast.makeText(DisplayActivity.this, "没有更多数据了", Toast.LENGTH_SHORT).show();
         }
+        Log.i("result", result.size() + "");
+        if (page == 1) {
+            list = new ArrayList<>();
+        }
+        list.addAll(result);
+        displayAdapter = new DisplayAdapter(this, list);
+        recycle.setAdapter(displayAdapter);
+        recycle.scrollToPosition(list.size() - result.size() - 2);
+        displayAdapter.getCallBackId(new DisplayAdapter.CallBackId() {
+            @Override
+            public void getId(int id) {
+                Intent intent = new Intent(DisplayActivity.this, DetailsActivity.class);
+                intent.putExtra("commodityId", id);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         contachPresenter.delachView(this);
-
+        boolean disposed = disposable.isDisposed();
+        if (!disposed) {
+            //取消订阅
+            disposable.clear();
+            //解除订阅
+            disposable.dispose();
+        }
     }
 }

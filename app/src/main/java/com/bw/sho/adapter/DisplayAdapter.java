@@ -78,7 +78,7 @@ public class DisplayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemCount() {
-        return result.size() + 1;
+        return result.size();
     }
 
     //关键字

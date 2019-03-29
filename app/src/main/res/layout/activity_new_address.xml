@@ -96,6 +96,7 @@
                     android:cursorVisible="false" />
 
                 <ImageView
+                    android:id="@+id/new_check"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@mipmap/my_foot" />

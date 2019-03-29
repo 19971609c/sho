@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.bw.sho.R;
 import com.bw.sho.base.BaseActivity;
 import com.bw.sho.sql.SqlDao;
@@ -22,6 +23,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
     private TagFlowLayout flowLayout;
     private ImageView back;
     private TextView clear;
+    private ImageView image;
 
     @Override
     protected void initData() {
@@ -30,15 +32,25 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void getText(String text) {
                 //存数据库
-                sqlDao.add(text);
-                //流逝布局
-                onData();
-                //跳转到显示页面
-                Intent intent = new Intent(SearchActivity.this, DisplayActivity.class);
-                //传值
-                intent.putExtra("text",text);
-                startActivity(intent);
-                finish();
+                if (!text.equals("")) {
+                    image.setVisibility(View.GONE);
+                    flowLayout.setVisibility(View.VISIBLE);
+                    sqlDao.add(text);
+                    //流逝布局
+                    onData();
+                    //跳转到显示页面
+                    Intent intent = new Intent(SearchActivity.this, DisplayActivity.class);
+                    //传值
+                    intent.putExtra("text", text);
+                    startActivity(intent);
+                    //
+                    List<String> select = sqlDao.select();
+                    finish();
+                } else {
+                    image.setVisibility(View.VISIBLE);
+                    clear.setVisibility(View.GONE);
+                    flowLayout.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -50,6 +62,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         clear = findViewById(R.id.s_clear);
         flowLayout = findViewById(R.id.s_flowlayout);
         searchBox = findViewById(R.id.s_search);
+        image = findViewById(R.id.di_image);
         //关联数据库
         sqlDao = new SqlDao(this);
         onData();
@@ -58,6 +71,20 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         back.setOnClickListener(this);
         //onData调用布局方法
         onData();
+
+        flowLayout.setOnTagClickListener(new TagFlowLayout.OnTagClickListener() {
+            @Override
+            public boolean onTagClick(View view, int position, FlowLayout parent) {
+                List<String> select = sqlDao.select();
+                //跳转到显示页面
+                Intent intent = new Intent(SearchActivity.this, DisplayActivity.class);
+                //传值
+                intent.putExtra("text", select.get(position));
+                startActivity(intent);
+                finish();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -86,6 +113,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
             }
         });
     }
+
 
     //点击事件
     @Override

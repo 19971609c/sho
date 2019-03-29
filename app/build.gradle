@@ -69,4 +69,8 @@ dependencies {
     //GrennDao数据库
     implementation 'org.greenrobot:greendao:3.0.1'
     implementation 'org.greenrobot:greendao-generator:3.0.0'
+
+    // 城市 三级联动
+    implementation 'liji.library.dev:citypickerview:4.1.0'
+
 }

@@ -1,9 +1,12 @@
 package com.bw.sho.content;
 
 import com.bw.sho.bean.Circleinfo;
+import com.bw.sho.bean.CreatOrderinfo;
 import com.bw.sho.bean.FindCarinfo;
 
 import java.util.List;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 /**
  * @Auther: 不懂
@@ -18,7 +21,7 @@ public class FindCarContach {
 
         public void CircleData(List<Circleinfo.ResultBean> circleList);
 
-        public void CreateOrder();
+        public void CreateOrder(CreatOrderinfo shZcarinfo);
     }
 
     //P层
@@ -30,17 +33,17 @@ public class FindCarContach {
         public void delachView(FindCarView findCarView);
 
         //P层的请求数据方法
-        public void getFindCar(String url, int userId, String sessionId);
+        public void getFindCar(String url, int userId, String sessionId, CompositeDisposable disposable);
 
-        public void CircleData(String url, int page, int count);
+        public void CircleData(String url, int page, int count, CompositeDisposable disposable);
 
-        public void CreateOrder(String url, int userId, String sessionId, String orderInfo, double totalPrice, int addressId);
+        public void CreateOrder(String url, int userId, String sessionId, String orderInfo, double totalPrice, int addressId, CompositeDisposable disposable);
     }
 
     //M层
     public interface CFindCarModel {
         //M层的请求数据的放发
-        public void getFindCar(String url, int userId, String sessionId, OnCallBack onCallBack);
+        public void getFindCar(String url, int userId, String sessionId, CompositeDisposable disposable, OnCallBack onCallBack);
 
         //返回数据方法
         public interface OnCallBack {
@@ -48,18 +51,18 @@ public class FindCarContach {
             public void getFindCar(FindCarinfo findCarinfo);
         }
 
-        public void CircleData(String url, int page, int count, OnCallBackCircle onCallBackCircle);
+        public void CircleData(String url, int page, int count, CompositeDisposable disposable, OnCallBackCircle onCallBackCircle);
 
         public interface OnCallBackCircle {
             //对应M的放回方法
             public void CircleData(List<Circleinfo.ResultBean> circleList);
         }
 
-        public void CreateOrder(String url, int userId, String sessionId, String orderInfo, double totalPrice, int addressId, OnCallBackOrder onCallBackOrder);
+        public void CreateOrder(String url, int userId, String sessionId, String orderInfo, double totalPrice, int addressId, CompositeDisposable disposable, OnCallBackOrder onCallBackOrder);
 
         public interface OnCallBackOrder {
             //对应M的放回方法
-            public void CreateOrder();
+            public void CreateOrder(CreatOrderinfo shZcarinfo);
         }
     }
 }

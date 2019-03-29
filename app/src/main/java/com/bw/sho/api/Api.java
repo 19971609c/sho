@@ -40,4 +40,17 @@ public class Api {
     //创建订单
     //http://172.17.8.100/small/order/verify/v1/createOrder
     public static final String CreateUrl = "http://mobile.bwstudent.com/";
+
+    //查看余额
+    //http://172.17.8.100/small/user/verify/v1/findUserWallet
+    public static final String WalletUrl = "http://mobile.bwstudent.com/";
+
+    //全部订单
+    //http://172.17.8.100/small/order/verify/v1/findOrderListByStatus
+    public static final String WholetUrl = "http://mobile.bwstudent.com/";
+
+
+    //支付
+    //http://172.17.8.100/small/order/verify/v1/pay
+    public static final String PaymentUrl = "http://mobile.bwstudent.com/";
 }

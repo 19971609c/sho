@@ -1,7 +1,5 @@
 package com.bw.sho.model;
 
-import android.util.Log;
-
 import com.bw.sho.api.Api;
 import com.bw.sho.api.ApiService;
 import com.bw.sho.bean.Discussinfo;
@@ -10,12 +8,11 @@ import com.bw.sho.content.DiscussContract;
 import com.bw.sho.utils.NetWorkManager;
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
 
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.DisposableSubscriber;
 import okhttp3.ResponseBody;
@@ -36,10 +33,10 @@ public class DiscussModel implements DiscussContract.DiscussModel {
 
     //商品详情数据
     @Override
-    public void getDiscussData(String url, int commodityId, final backDiscussData backDiscussData) {
+    public void getDiscussData(String url, int commodityId, CompositeDisposable disposable, final backDiscussData backDiscussData) {
         ApiService apiService = NetWorkManager.getInstance().initApiService(url, ApiService.class);
         Flowable<Discussinfo> discussData = apiService.getDiscussData(commodityId);
-        discussData.subscribeOn(Schedulers.io())
+        DisposableSubscriber<Discussinfo> disposableSubscriber = discussData.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSubscriber<Discussinfo>() {
                     @Override
@@ -58,11 +55,13 @@ public class DiscussModel implements DiscussContract.DiscussModel {
 
                     }
                 });
+        //把订阅者添加到订阅管理器
+        disposable.add(disposableSubscriber);
     }
 
     //购物车
     @Override
-    public void getCar(String carUrl, final int userId, final String sessionId, String data, final backCarData backCarData) {
+    public void getCar(String carUrl, final int userId, final String sessionId, String data, CompositeDisposable disposable, final backCarData backCarData) {
 
         Retrofit build = new Retrofit.Builder()
                 .client(NetWorkManager.getInstance().initOkHttp())

@@ -8,6 +8,8 @@ import com.bw.sho.model.DiscussModel;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 /**
  * @Auther: 不懂
  * @Date: 2019/3/19 10:43:19
@@ -40,8 +42,8 @@ public class DiscussPresenter implements DiscussContract.DiscussPresenter<Discus
     //m返回数据
     //详情
     @Override
-    public void getDiscussData(String url, int commodityId) {
-        discussModel.getDiscussData(url, commodityId, new DiscussContract.DiscussModel.backDiscussData() {
+    public void getDiscussData(String url, int commodityId, CompositeDisposable disposable) {
+        discussModel.getDiscussData(url, commodityId, disposable, new DiscussContract.DiscussModel.backDiscussData() {
             @Override
             public void getDiscussData(Discussinfo.ResultBean result) {
                 //v返回数据
@@ -53,8 +55,8 @@ public class DiscussPresenter implements DiscussContract.DiscussPresenter<Discus
 
     //购物车
     @Override
-    public void getCar(String carUrl, int userId, String sessionId, String data) {
-        discussModel.getCar(carUrl, userId, sessionId, data, new DiscussContract.DiscussModel.backCarData() {
+    public void getCar(String carUrl, int userId, String sessionId, String data, CompositeDisposable disposable) {
+        discussModel.getCar(carUrl, userId, sessionId, data, disposable, new DiscussContract.DiscussModel.backCarData() {
             @Override
             public void getCarData(SHZcarinfo shZcarinfo) {
                 discussView.getCar(shZcarinfo);
