@@ -1,5 +1,6 @@
 package com.bw.sho.fragment;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -11,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.bw.sho.R;
+import com.bw.sho.activity.ConfirmOrderActivity;
 import com.bw.sho.adapter.FindCarAdapter;
 import com.bw.sho.api.Api;
 import com.bw.sho.base.BaseFragment;
@@ -18,9 +20,13 @@ import com.bw.sho.bean.Circleinfo;
 import com.bw.sho.bean.CreatOrderinfo;
 import com.bw.sho.bean.FindCarResclt;
 import com.bw.sho.bean.FindCarinfo;
+import com.bw.sho.bean.OrderPagerinfo;
 import com.bw.sho.content.FindCarContach;
 import com.bw.sho.presenter.FindCarPresenter;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -43,6 +49,7 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
     private FindCarPresenter findCarPresenter;
     //订阅管理器
     CompositeDisposable disposable = new CompositeDisposable();
+    private List<FindCarResclt> result;
 
     @Override
     protected int getLatoutId() {
@@ -58,6 +65,7 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
         money = view.findViewById(R.id.car_money);
         TextView sum = view.findViewById(R.id.car_sum);
         check.setOnClickListener(this);
+        sum.setOnClickListener(this);
         LinearLayoutManager manager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(manager);
         scroll = view.findViewById(R.id.car_scro);
@@ -102,6 +110,22 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
                     findCarAdapter.isCheck(false);
                 }
                 break;
+            case R.id.car_sum:
+                List<OrderPagerinfo> list = new ArrayList<>();
+                for (int i = 0; i < result.size(); i++) {
+                    if (result.get(i).getIsCheck()) {
+                        int commodityId = result.get(i).getCommodityId();
+                        String commodityName = result.get(i).getCommodityName();
+                        int price = result.get(i).getPrice();
+                        String image = result.get(i).getPic();
+                        int count = result.get(i).getCount();
+                        list.add(new OrderPagerinfo(commodityId, commodityName, price, image, count));
+                    }
+                }
+                EventBus.getDefault().postSticky(list);
+                Intent intent = new Intent(getActivity(), ConfirmOrderActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 
@@ -114,7 +138,7 @@ public class GoodsCarFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     public void getFindCar(FindCarinfo findCarinfo) {
-        List<FindCarResclt> result = findCarinfo.getResult();
+        result = findCarinfo.getResult();
         findCarAdapter = new FindCarAdapter(getActivity(), result);
         recyclerView.setAdapter(findCarAdapter);
         //设置

@@ -11,6 +11,7 @@ import com.bw.sho.api.Api;
 import com.bw.sho.base.BaseActivity;
 import com.bw.sho.bean.Addressinfo;
 import com.bw.sho.bean.SHZcarinfo;
+import com.bw.sho.bean.Wallerinfo;
 import com.bw.sho.content.AddressContach;
 import com.bw.sho.presenter.AddressPresenter;
 import com.lljjcoder.Interface.OnCityItemClickListener;
@@ -124,6 +125,11 @@ public class NewAddressActivity extends BaseActivity implements View.OnClickList
 
     @Override
     public void AddressList(List<Addressinfo.ResultBean> addressList) {
+
+    }
+
+    @Override
+    public void walletList(Wallerinfo.ResultBean result) {
 
     }
 

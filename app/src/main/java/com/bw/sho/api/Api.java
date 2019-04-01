@@ -37,6 +37,7 @@ public class Api {
     //圈子列表
     //http://172.17.8.100/small/circle/v1/findCircleList
     public static final String CircleUrl = "http://mobile.bwstudent.com/";
+
     //创建订单
     //http://172.17.8.100/small/order/verify/v1/createOrder
     public static final String CreateUrl = "http://mobile.bwstudent.com/";
@@ -45,7 +46,7 @@ public class Api {
     //http://172.17.8.100/small/user/verify/v1/findUserWallet
     public static final String WalletUrl = "http://mobile.bwstudent.com/";
 
-    //全部订单
+    //根据订单状态查询
     //http://172.17.8.100/small/order/verify/v1/findOrderListByStatus
     public static final String WholetUrl = "http://mobile.bwstudent.com/";
 
@@ -53,4 +54,16 @@ public class Api {
     //支付
     //http://172.17.8.100/small/order/verify/v1/pay
     public static final String PaymentUrl = "http://mobile.bwstudent.com/";
+
+    //oneList
+    //http://172.17.8.100/small/commodity/v1/findFirstCategory
+    public static final String OneListUrl = "http://mobile.bwstudent.com/";
+
+    //TwoList
+    //http://172.17.8.100/small/commodity/v1/findSecondCategory
+    public static final String TwoListUrl = "http://mobile.bwstudent.com/";
+
+    //ThreeList
+    //http://172.17.8.100/small/commodity/v1/findCommodityByCategory
+    public static final String ThreeListUrl = "http://mobile.bwstudent.com/";
 }

@@ -13,6 +13,7 @@ import com.bw.sho.api.Api;
 import com.bw.sho.base.BaseActivity;
 import com.bw.sho.bean.Addressinfo;
 import com.bw.sho.bean.SHZcarinfo;
+import com.bw.sho.bean.Wallerinfo;
 import com.bw.sho.content.AddressContach;
 import com.bw.sho.presenter.AddressPresenter;
 
@@ -37,7 +38,7 @@ public class AddressActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     protected void initView() {
-        //
+        //获取userId,sessionId
         status = getSharedPreferences("status", MODE_PRIVATE);
         userId = status.getInt("userId", 0);
         sessionId = status.getString("sessionId", null);
@@ -76,6 +77,11 @@ public class AddressActivity extends BaseActivity implements View.OnClickListene
     public void AddressList(List<Addressinfo.ResultBean> addressList) {
         AddressAdapter addressAdapter = new AddressAdapter(this, addressList);
         recycler.setAdapter(addressAdapter);
+    }
+
+    @Override
+    public void walletList(Wallerinfo.ResultBean result) {
+
     }
 
     @Override

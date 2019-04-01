@@ -9,8 +9,12 @@ import com.bw.sho.bean.FindCarinfo;
 import com.bw.sho.bean.HomeBanner;
 import com.bw.sho.bean.HomeShow;
 import com.bw.sho.bean.Logininfo;
+import com.bw.sho.bean.OneListinfo;
 import com.bw.sho.bean.Registerinfo;
 import com.bw.sho.bean.SHZcarinfo;
+import com.bw.sho.bean.ThreeListinfo;
+import com.bw.sho.bean.TwoListinfo;
+import com.bw.sho.bean.Wallerinfo;
 import com.bw.sho.bean.WholeOrderinfo;
 
 import java.util.Map;
@@ -85,11 +89,11 @@ public interface ApiService {
     @POST("small/order/verify/v1/createOrder")
     Flowable<CreatOrderinfo> CreateOrder(@Header("userId") int userId, @Header("sessionId") String sessionId, @Field("orderInfo") String orderInfo, @Field("totalPrice") double totalPrice, @Field("addressId") int addressId);
 
-    //商品详情数据
+    //我的余额
     @GET("small/user/verify/v1/findUserWallet")
-    Flowable<Discussinfo> Waller(@Header("userId") int userId, @Header("sessionId") String sessionId);
+    Flowable<Wallerinfo> Waller(@Header("userId") int userId, @Header("sessionId") String sessionId, @Query("page") int page, @Query("count") int count);
 
-    //商品详情数据
+    //根据订单状态查询
     @GET("small/order/verify/v1/findOrderListByStatus")
     Flowable<WholeOrderinfo> Whole(@Header("userId") int userId, @Header("sessionId") String sessionId, @Query("status") int status, @Query("page") int page, @Query("count") int count);
 
@@ -97,5 +101,18 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("small/order/verify/v1/pay")
     Flowable<SHZcarinfo> Payment(@Header("userId") int userId, @Header("sessionId") String sessionId, @Field("orderId") String orderId, @Field("payType") int payType);
+
+
+    //OneList
+    @GET("small/commodity/v1/findFirstCategory")
+    Flowable<OneListinfo> getOneList();
+
+    //OneList
+    @GET("small/commodity/v1/findSecondCategory")
+    Flowable<TwoListinfo> getTwoList(@Query("firstCategoryId") String firstCategoryId);
+
+    //ThreeList
+    @GET("small/commodity/v1/findCommodityByCategory")
+    Flowable<ThreeListinfo> getThreeList(@Query("categoryId") String firstCategoryId, @Query("page") int page, @Query("count") int count);
 
 }

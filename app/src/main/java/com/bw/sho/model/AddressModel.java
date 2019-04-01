@@ -1,8 +1,11 @@
 package com.bw.sho.model;
 
+import android.util.Log;
+
 import com.bw.sho.api.ApiService;
 import com.bw.sho.bean.Addressinfo;
 import com.bw.sho.bean.SHZcarinfo;
+import com.bw.sho.bean.Wallerinfo;
 import com.bw.sho.content.AddressContach;
 import com.bw.sho.utils.NetWorkManager;
 
@@ -74,5 +77,32 @@ public class AddressModel implements AddressContach.AddressMdel {
                 });
         //把订阅者添加到订阅者管理器
         disposable.add(disposableSubscriber);
+    }
+
+    //钱包
+    @Override
+    public void walletList(String url, int userId, String sessionId, int page, int count, CompositeDisposable disposable, final BackWalletList backWalletList) {
+        ApiService apiService = NetWorkManager.getInstance().initApiService(url, ApiService.class);
+        Flowable<Wallerinfo> waller = apiService.Waller(userId, sessionId, page, count);
+        DisposableSubscriber<Wallerinfo> balance = waller.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSubscriber<Wallerinfo>() {
+                    @Override
+                    public void onNext(Wallerinfo wallerinfo) {
+                        Wallerinfo.ResultBean result = wallerinfo.getResult();
+                        backWalletList.walletList(result);
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+        disposable.add(balance);
     }
 }

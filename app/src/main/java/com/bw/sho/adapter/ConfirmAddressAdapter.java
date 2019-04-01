@@ -4,7 +4,6 @@ package com.bw.sho.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -20,6 +19,17 @@ import java.util.List;
  * @Description:
  */
 public class ConfirmAddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    public CallBackConfirmId callBackConfirmId;
+
+    public void getCallBackConfirmId(CallBackConfirmId callBackConfirmId) {
+        this.callBackConfirmId = callBackConfirmId;
+    }
+
+    //接口回调
+    public interface CallBackConfirmId {
+        public void getMid(int id);
+    }
 
 
     private Context context;
@@ -50,7 +60,7 @@ public class ConfirmAddressAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             public void onClick(View v) {
                 int mid = list.get(i).getId();
                 if (callBackConfirmId != null) {
-                    callBackConfirmId.getId(mid + "");
+                    callBackConfirmId.getMid(mid);
                 }
             }
         });
@@ -79,14 +89,5 @@ public class ConfirmAddressAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    //接口回调
-    public interface CallBackConfirmId {
-        void getId(String id);
-    }
 
-    public CallBackConfirmId callBackConfirmId;
-
-    public void getCallBackConfirmId(CallBackConfirmId callBackConfirmId) {
-        this.callBackConfirmId = callBackConfirmId;
-    }
 }

@@ -2,8 +2,14 @@ package com.bw.sho.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -27,6 +33,7 @@ public class PaymentActivity extends BaseActivity implements View.OnClickListene
     private String orderid;
     private int typid = 0;
     private CompositeDisposable disposable = new CompositeDisposable();
+    private String price;
 
     @Override
     protected int getLayoutId() {
@@ -42,8 +49,10 @@ public class PaymentActivity extends BaseActivity implements View.OnClickListene
         //orderid
         Intent intent = getIntent();
         orderid = intent.getStringExtra("orderid");
+        price = intent.getStringExtra("price");
         RadioGroup group = findViewById(R.id.p_group);
         Button payment = findViewById(R.id.p_payment);
+        payment.setText("支付金额:" + price + "元");
         payment.setOnClickListener(this);
         group.setOnCheckedChangeListener(this);
         orderPresenter = new OrderPresenter();
@@ -59,7 +68,7 @@ public class PaymentActivity extends BaseActivity implements View.OnClickListene
     public void onClick(View v) {
         if (typid != 0) {
             orderPresenter.getPayment(Api.PaymentUrl, userId, sessionId, orderid, typid, disposable);
-        }else {
+        } else {
             Toast.makeText(this, "请选择支付方式", Toast.LENGTH_SHORT).show();
         }
     }
@@ -72,8 +81,12 @@ public class PaymentActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     public void getPayment(SHZcarinfo shZcarinfo) {
-        Toast.makeText(this, shZcarinfo.getMessage(), Toast.LENGTH_SHORT).show();
-        finish();
+        if (shZcarinfo.getStatus().equals("0000")) {
+            showpopupWindow();
+        } else {
+            Toast.makeText(this, shZcarinfo.getMessage() + "请从新支付", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
@@ -90,6 +103,48 @@ public class PaymentActivity extends BaseActivity implements View.OnClickListene
                 break;
         }
     }
+
+    private void showpopupWindow() {
+        ImageView p_finsh;
+
+        LayoutInflater layoutInflater = LayoutInflater.from(PaymentActivity.this);
+        View view = layoutInflater.inflate(R.layout.popupwindofinsh, null);
+
+        // final PopupWindow popupWindow = new PopupWindow(view, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+        final PopupWindow popupWindow = new PopupWindow(view, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+        // 如果不设置PopupWindow的背景，无论是点击外部区域还是Back键都无法dismiss弹框
+        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.popupwindow_background));
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setAnimationStyle(R.style.MyPopupWindow_anim_style);
+
+        p_finsh = (ImageView) view.findViewById(R.id.p_finsh);
+        p_finsh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                popupWindow.dismiss();
+            }
+        });
+
+        // PopupWindow弹出位置
+        //popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+        backgroundAlpha(0.5f);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                backgroundAlpha(1f);
+            }
+        });
+    }
+
+    // 设置屏幕透明度
+    public void backgroundAlpha(float bgAlpha) {
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = bgAlpha; // 0.0~1.0
+        getWindow().setAttributes(lp);
+    }
+
 
     @Override
     protected void onDestroy() {

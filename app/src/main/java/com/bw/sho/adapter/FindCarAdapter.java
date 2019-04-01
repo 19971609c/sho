@@ -111,24 +111,23 @@ public class FindCarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     private void setCheck(boolean check) {
+
         for (int i = 0; i < list.size(); i++) {
             list.get(i).setIsCheck(check);
         }
         notifyDataSetChanged();
+
+        //计算价格
         int moneys = 0;
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getIsCheck()) {
                 moneys += list.get(i).getPrice() * list.get(i).getCount();
             }
         }
-       if (onMoneyClick!=null){
-           onMoneyClick.getData(moneys);
-       }
-    }
 
-    //计算价格
-    public void Number() {
-
+        if (onMoneyClick!=null){
+            onMoneyClick.getData(moneys);
+        }
     }
 
     @Override

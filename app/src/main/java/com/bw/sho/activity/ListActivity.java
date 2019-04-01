@@ -1,34 +1,29 @@
-package com.bw.sho.fragment;
+package com.bw.sho.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.bw.sho.R;
-import com.bw.sho.activity.DetailsActivity;
-import com.bw.sho.activity.ListActivity;
-import com.bw.sho.activity.SearchActivity;
-import com.bw.sho.adapter.HomeAdapter;
 import com.bw.sho.adapter.ListOneAdapter;
+import com.bw.sho.adapter.ListThreeAdapter;
 import com.bw.sho.adapter.ListTwoAdapter;
 import com.bw.sho.api.Api;
-import com.bw.sho.base.BaseFragment;
-import com.bw.sho.bean.Displayinfo;
-import com.bw.sho.bean.HomeBanner;
-import com.bw.sho.bean.HomeShow;
+import com.bw.sho.base.BaseActivity;
 import com.bw.sho.bean.OneListinfo;
 import com.bw.sho.bean.ThreeListinfo;
 import com.bw.sho.bean.TwoListinfo;
-import com.bw.sho.content.Contach;
 import com.bw.sho.content.ListContach;
-import com.bw.sho.presenter.ContachPresenter;
 import com.bw.sho.presenter.ListPresenter;
 import com.bw.sho.view.SearchBoxView;
 
@@ -36,114 +31,74 @@ import java.util.List;
 
 import io.reactivex.disposables.CompositeDisposable;
 
-/**
- * @Auther: 不懂
- * @Date: 2019/3/14 08:58:45
- * @Description:
- */
-public class HomeFragment extends BaseFragment implements View.OnClickListener, Contach.ContachView, ListContach.ListContachView {
+public class ListActivity extends BaseActivity implements View.OnClickListener, ListContach.ListContachView {
+
     private SearchBoxView searchBox;
     private RecyclerView recycle;
-    private ContachPresenter contachPresenter;
-    private List<HomeBanner.ResultBean> result;
-    private HomeBanner homeBanner;
     private ImageView common;
-    //订阅管理器
-    private  CompositeDisposable disposable = new CompositeDisposable();
     private ListPresenter listPresenter;
+    private CompositeDisposable disposable = new CompositeDisposable();
     private RecyclerView towre;
 
     @Override
-    protected void initData() {
-        //实例P层
-        contachPresenter = new ContachPresenter();
-        listPresenter = new ListPresenter();
-        //绑定
-        contachPresenter.attachView(this);
-        listPresenter.attachView(this);
-        //请求轮播数据
-        contachPresenter.getBannerData(Api.HomeBannerUrl, disposable);
+    protected int getLayoutId() {
+        return R.layout.activity_list;
     }
 
-    //找控件
     @Override
-    protected void initView(View view) {
-        searchBox = view.findViewById(R.id.home_search);
-        recycle = view.findViewById(R.id.home_recycle);
-        common = view.findViewById(R.id.home_common);
+    protected void initView() {
+        searchBox = findViewById(R.id.li_search);
+        recycle = findViewById(R.id.li_recycle);
+        common = findViewById(R.id.li_common);
         //设置样式
-        LinearLayoutManager manager = new LinearLayoutManager(getActivity());
+        GridLayoutManager manager = new GridLayoutManager(this, 2);
         recycle.setLayoutManager(manager);
         common.setOnClickListener(this);
+
+        listPresenter = new ListPresenter();
+        listPresenter.attachView(this);
+    }
+
+    @Override
+    protected void initData() {
+
+        Intent intent = getIntent();
+        String mid = intent.getStringExtra("Mid");
+        Log.i("three-------", mid);
+        listPresenter.getThreeList(Api.ThreeListUrl, mid, 1, 6, disposable);
 
         //回调放法
         searchBox.setOnIntent(new SearchBoxView.OnIntent() {
             @Override
             public void onintent() {
                 //跳转到搜索页面
-                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                Intent intent = new Intent(ListActivity.this, SearchActivity.class);
                 startActivity(intent);
             }
         });
     }
-
-    @Override
-    protected int getLatoutId() {
-        return R.layout.home_fragment;
-    }
-
-    //得到轮播数据
-    @Override
-    public void getBannerData(HomeBanner body) {
-        this.homeBanner = body;
-        result = body.getResult();
-        //请求首页数据
-        contachPresenter.getHomeData(Api.HomeUrl, disposable);
-    }
-
-    //得到首页数据
-    @Override
-    public void getHomeData(HomeShow body) {
-        HomeAdapter homeAdapter = new HomeAdapter(getActivity(), body, homeBanner);
-        recycle.setAdapter(homeAdapter);
-        //得到详情ID
-        homeAdapter.getCallBackId(new HomeAdapter.CallBackId() {
-            @Override
-            public void getId(int id) {
-                Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra("commodityId", id);
-                startActivity(intent);
-            }
-        });
-    }
-
-    @Override
-    public void getDisplay(Displayinfo displayinfo) {
-
-    }
-
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.home_common:
+            case R.id.li_common:
                 //请求一级列表数据
                 listPresenter.getOnelist(Api.OneListUrl, disposable);
                 break;
         }
     }
 
-    //一级列表数据
+    //one
     @Override
     public void getOnelist(List<OneListinfo.ResultBean> oneList) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.item_onelist, null, false);
+        View view = LayoutInflater.from(this).inflate(R.layout.item_onelist, null, false);
         //RecyclerView列表控件
         RecyclerView ontList = view.findViewById(R.id.one_list);
         towre = view.findViewById(R.id.two_list);
         //设置管理器
-        ontList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+        ontList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         //设置适配器
-        ListOneAdapter listOneAdapter = new ListOneAdapter(getActivity(), oneList);
+        ListOneAdapter listOneAdapter = new ListOneAdapter(this, oneList);
         ontList.setAdapter(listOneAdapter);
 
         final PopupWindow popupWindow = new PopupWindow(view, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
@@ -166,42 +121,45 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 listPresenter.getTwoList(Api.TwoListUrl, id, disposable);
             }
         });
-
     }
 
-    //二级列表数据
+    //two
     @Override
     public void getTwoList(List<TwoListinfo.ResultBean> tworesult) {
         //设置管理器
-        towre.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+        towre.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         //设置适配器
-        ListTwoAdapter listTwoAdapter = new ListTwoAdapter(getActivity(), tworesult);
+        ListTwoAdapter listTwoAdapter = new ListTwoAdapter(this, tworesult);
         towre.setAdapter(listTwoAdapter);
         listTwoAdapter.setOnTwoClick(new ListTwoAdapter.OnTwoClick() {
             @Override
             public void setIdData(String id) {
-                //跳转到显示页面
-                Intent intent = new Intent(getActivity(), ListActivity.class);
-                //传值
-                intent.putExtra("Mid", id);
+                Log.i("three-------", id);
+                listPresenter.getThreeList(Api.ThreeListUrl, id, 1, 6, disposable);
+            }
+        });
+    }
+
+    //three
+    @Override
+    public void getThreeList(List<ThreeListinfo.ResultBean> threeresult) {
+        ListThreeAdapter listThreeAdapter = new ListThreeAdapter(this, threeresult);
+        recycle.setAdapter(listThreeAdapter);
+        listThreeAdapter.setOnOneClick(new ListThreeAdapter.OnOneClick() {
+            @Override
+            public void setIdData(int id) {
+                Intent intent = new Intent(ListActivity.this, DetailsActivity.class);
+                intent.putExtra("commodityId", id);
                 startActivity(intent);
             }
         });
     }
 
     @Override
-    public void getThreeList(List<ThreeListinfo.ResultBean> threeresult) {
-
-    }
-
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         //解绑
-        contachPresenter.delachView(this);
         listPresenter.delachView(this);
-
         boolean disposed = disposable.isDisposed();
         if (!disposed) {
             //消除订阅
@@ -210,5 +168,4 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             disposable.dispose();
         }
     }
-
 }

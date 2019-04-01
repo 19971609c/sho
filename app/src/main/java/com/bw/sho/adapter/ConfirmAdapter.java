@@ -6,11 +6,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bw.sho.R;
-import com.bw.sho.bean.Discussinfo;
+import com.bw.sho.bean.OrderPagerinfo;
 import com.bw.sho.view.NumberView;
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -24,9 +25,9 @@ import java.util.List;
 public class ConfirmAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
-    private List<Discussinfo.ResultBean> list;
+    private List<OrderPagerinfo> list;
 
-    public ConfirmAdapter(Context context, List<Discussinfo.ResultBean> list) {
+    public ConfirmAdapter(Context context, List<OrderPagerinfo> list) {
         this.context = context;
         this.list = list;
     }
@@ -45,13 +46,15 @@ public class ConfirmAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         final NumHolder numHolder = (NumHolder) viewHolder;
         numHolder.text.setText(list.get(i).getCommodityName());
         numHolder.money.setText("$" + list.get(i).getPrice() + ".00");
-        String[] split = list.get(i).getPicture().split(",");
-        Glide.with(context).load(split[0]).into(numHolder.image);
+        Glide.with(context).load(list.get(i).getImageurl()).into(numHolder.image);
+        Button button = numHolder.numberView.findViewById(R.id.me_text);
+        button.setText(list.get(i).getCount() + "");
 
         int moneys = 0;
         for (int j = 0; j < list.size(); j++) {
-            moneys += list.get(j).getPrice() * 1;
+            moneys += list.get(j).getPrice() * list.get(j).getCount();
         }
+
         if (onMoneyClick != null) {
             onMoneyClick.getData(moneys);
         }
@@ -59,14 +62,22 @@ public class ConfirmAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         numHolder.numberView.setOnSumItemClick(new NumberView.OnSumItemClick() {
             @Override
             public void sumItemClick(int sum) {
+
+                Button button = numHolder.numberView.findViewById(R.id.me_text);
+                String s = button.getText().toString();
+                Integer integer = Integer.valueOf(s);
+                list.get(i).setCount(integer);
                 //价格
                 int moneys = 0;
                 for (int j = 0; j < list.size(); j++) {
-                    moneys += list.get(j).getPrice() * sum;
+                    moneys += list.get(j).getPrice() * list.get(j).getCount();
                 }
+
                 if (onMoneyClick != null) {
                     onMoneyClick.getData(moneys);
                 }
+
+
                 //数量
                 if (onNumClick != null) {
                     onNumClick.getData(sum);

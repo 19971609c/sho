@@ -114,7 +114,6 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         });
     }
 
-
     //点击事件
     @Override
     public void onClick(View v) {

@@ -1,5 +1,6 @@
 package com.bw.sho.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -37,6 +38,7 @@ import com.bw.sho.bean.CreatOrderinfo;
 import com.bw.sho.bean.Discussinfo;
 import com.bw.sho.bean.FindCarResclt;
 import com.bw.sho.bean.FindCarinfo;
+import com.bw.sho.bean.OrderPagerinfo;
 import com.bw.sho.bean.SHZcarinfo;
 import com.bw.sho.content.DiscussContract;
 import com.bw.sho.content.FindCarContach;
@@ -45,6 +47,8 @@ import com.bw.sho.presenter.FindCarPresenter;
 import com.bw.sho.view.IdeaScrollView;
 import com.bw.sho.view.IdeaViewPager;
 import com.google.gson.Gson;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,6 +108,8 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+
+
         StatusBarCompat.translucentStatusBar(this);
         //验证是否登录
         status = getSharedPreferences("status", MODE_PRIVATE);
@@ -263,16 +269,26 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
                     //查询购物车
                     findCarPresenter.getFindCar(Api.findCarUrl, userId, sessionId, disposable);
                 } else {
-                    setLogin();
+                    showpopupWindow();
                 }
                 break;
             case R.id.de_order:
                 if (status.getBoolean("statusId", false)) {
+                    List<OrderPagerinfo> list = new ArrayList<>();
+                    int commodityId = result.getCommodityId();
+                    String commodityName = result.getCommodityName();
+                    int price = result.getPrice();
+                    String[] split = result.getPicture().split(",");
+                    list.add(new OrderPagerinfo(commodityId, commodityName, price, split[0], 1));
+                    //得到数据传值
+                    EventBus.getDefault().postSticky(list);
                     Intent intent = new Intent(DetailsActivity.this, ConfirmOrderActivity.class);
-                    intent.putExtra("result", result);
                     startActivity(intent);
+                  /*  Intent intent = new Intent(DetailsActivity.this, ConfirmOrderActivity.class);
+                    intent.putExtra("result", result);
+                    startActivity(intent);*/
                 } else {
-                    setLogin();
+                    showpopupWindow();
                 }
                 break;
         }
@@ -314,50 +330,6 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
     public void CreateOrder(CreatOrderinfo shZcarinfo) {
 
     }
-
-    //提示用户登录
-    private void setLogin() {
-        View contentView = LayoutInflater.from(this).inflate(R.layout.popupwindow, null);
-        final PopupWindow popupWindow = new PopupWindow(contentView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        TextView tvConfirm = (TextView) contentView.findViewById(R.id.tv_confirm);
-        TextView tvCancel = (TextView) contentView.findViewById(R.id.tv_cancel);
-        tvConfirm.setText("登录");
-        tvCancel.setText("取消");
-        tvConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(DetailsActivity.this, LoginActivity.class);
-                startActivity(intent);
-                popupWindow.dismiss();
-            }
-        });
-
-        tvCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupWindow.dismiss();
-            }
-        });
-        popupWindow.setFocusable(true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(0x00000000));
-        // 设置PopupWindow以外部分的背景颜色  有一种变暗的效果
-        final WindowManager.LayoutParams wlBackground = getWindow().getAttributes();
-        wlBackground.alpha = 0.5f;      // 0.0 完全不透明,1.0完全透明
-        getWindow().setAttributes(wlBackground);
-        // 当PopupWindow消失时,恢复其为原来的颜色
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                wlBackground.alpha = 1.0f;
-                getWindow().setAttributes(wlBackground);
-            }
-        });
-        //设置PopupWindow进入和退出动画
-        popupWindow.setAnimationStyle(R.style.anim_popup_centerbar);
-        // 设置PopupWindow显示在中间
-        popupWindow.showAtLocation(contentView, Gravity.CENTER, 0, 0);
-    }
-
 
     public void setRadioButtonTextColor(float percentage) {
         if (Math.abs(percentage - currentPercentage) >= 0.1f) {
@@ -406,6 +378,58 @@ public class DetailsActivity extends AppCompatActivity implements DiscussContrac
             //解除订阅
             disposable.dispose();
         }
+    }
+
+
+    /*---------------------------------------*/
+
+    private void showpopupWindow() {
+        Button btItem1, btItem2;
+
+        LayoutInflater layoutInflater = LayoutInflater.from(DetailsActivity.this);
+        View view = layoutInflater.inflate(R.layout.popupwindowtwo, null);
+
+        // final PopupWindow popupWindow = new PopupWindow(view, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+        final PopupWindow popupWindow = new PopupWindow(view, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+        // 如果不设置PopupWindow的背景，无论是点击外部区域还是Back键都无法dismiss弹框
+        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.popupwindow_background));
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setAnimationStyle(R.style.MyPopupWindow_anim_style);
+
+        btItem1 = (Button) view.findViewById(R.id.bt_item1);
+        btItem1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DetailsActivity.this, LoginActivity.class);
+                startActivity(intent);
+                popupWindow.dismiss();
+            }
+        });
+        btItem2 = (Button) view.findViewById(R.id.bt_item2);
+        btItem2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+
+        // PopupWindow弹出位置
+        //popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+        backgroundAlpha(0.5f);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                backgroundAlpha(1f);
+            }
+        });
+    }
+
+    // 设置屏幕透明度
+    public void backgroundAlpha(float bgAlpha) {
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = bgAlpha; // 0.0~1.0
+        getWindow().setAttributes(lp);
     }
 
 

@@ -2,6 +2,7 @@ package com.bw.sho.presenter;
 
 import com.bw.sho.bean.Addressinfo;
 import com.bw.sho.bean.SHZcarinfo;
+import com.bw.sho.bean.Wallerinfo;
 import com.bw.sho.content.AddressContach;
 import com.bw.sho.model.AddressModel;
 
@@ -53,6 +54,17 @@ public class AddressPresenter implements AddressContach.AddressPresenter<Address
             @Override
             public void AddressList(List<Addressinfo.ResultBean> addressList) {
                 addressView.AddressList(addressList);
+            }
+        });
+    }
+
+    //钱包
+    @Override
+    public void walletList(String url, int userId, String sessionId, int page, int count, CompositeDisposable disposable) {
+        addressModel.walletList(url, userId, sessionId, page, count, disposable, new AddressContach.AddressMdel.BackWalletList() {
+            @Override
+            public void walletList(Wallerinfo.ResultBean result) {
+                addressView.walletList(result);
             }
         });
     }

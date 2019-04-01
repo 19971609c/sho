@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,12 +21,18 @@ import com.bw.sho.bean.CreatOrderinfo;
 import com.bw.sho.bean.CreateOrder;
 import com.bw.sho.bean.Discussinfo;
 import com.bw.sho.bean.FindCarinfo;
+import com.bw.sho.bean.OrderPagerinfo;
 import com.bw.sho.bean.SHZcarinfo;
+import com.bw.sho.bean.Wallerinfo;
 import com.bw.sho.content.AddressContach;
 import com.bw.sho.content.FindCarContach;
 import com.bw.sho.presenter.AddressPresenter;
 import com.bw.sho.presenter.FindCarPresenter;
 import com.google.gson.Gson;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,18 +47,15 @@ public class ConfirmOrderActivity extends BaseActivity implements AddressContach
     private String sessionId;
     private CompositeDisposable disposable = new CompositeDisposable();
     private RecyclerView address;
-    private List<Discussinfo.ResultBean> list;
-    private TextView text;
     private TextView num;
     private TextView rice;
     private RecyclerView shopping;
-    private FindCarPresenter findCarPresenter;
     private FindCarPresenter findCarPresenter1;
     private double price;
     private String json;
-    private Integer integer = 0;
+    private Integer integer = 471;
     private ConfirmAddressAdapter confirmAddressAdapter;
-    private int commodityId;
+    private List<OrderPagerinfo> orderlist = new ArrayList<>();
 
 
     @Override
@@ -61,51 +65,69 @@ public class ConfirmOrderActivity extends BaseActivity implements AddressContach
 
     @Override
     protected void initView() {
-        //获得信息
-        status = getSharedPreferences("status", MODE_PRIVATE);
-        userId = status.getInt("userId", 0);
-        sessionId = status.getString("sessionId", null);
-        //获得商品信息
-        Intent intent = getIntent();
-        Discussinfo.ResultBean resultBean = (Discussinfo.ResultBean) intent.getSerializableExtra("result");
-        commodityId = resultBean.getCommodityId();
-        //添加到一个集合
-        list = new ArrayList<>();
-        list.add(resultBean);
-        //添加订单
-        List<CreateOrder> orderlist = new ArrayList<>();
-        orderlist.add(new CreateOrder(commodityId, 1));
-        Gson gson = new Gson();
-        json = gson.toJson(orderlist);
         //找控件
-        text = findViewById(R.id.con_text);
-        address = findViewById(R.id.con_address);
+        address = findViewById(R.id.con_addressa);
         num = findViewById(R.id.con_num);
         rice = findViewById(R.id.con_price);
         Button tj = findViewById(R.id.con_tj);
         shopping = findViewById(R.id.con_list);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        address.setLayoutManager(linearLayoutManager);
+
         LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(this);
         shopping.setLayoutManager(linearLayoutManager1);
 
-        text.setOnClickListener(this);
-        tj.setOnClickListener(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        address.setLayoutManager(linearLayoutManager);
 
+        //获得信息
+        status = getSharedPreferences("status", MODE_PRIVATE);
+        userId = status.getInt("userId", 0);
+        sessionId = status.getString("sessionId", null);
+        //p
         addressPresenter = new AddressPresenter();
         addressPresenter.attachView(this);
         findCarPresenter1 = new FindCarPresenter();
         findCarPresenter1.attachView(this);
-
         //查询地址
         addressPresenter.addressList(Api.AddressUrl, userId, sessionId, disposable);
+
+        //注册EventBus
+        EventBus.getDefault().register(this);
+        //循环取值
+        List<CreateOrder> commodlist = new ArrayList<>();
+        for (int i = 0; i < orderlist.size(); i++) {
+            int commodityId = orderlist.get(i).getCommodityId();
+            int count = orderlist.get(i).getCount();
+            commodlist.add(new CreateOrder(commodityId, count));
+        }
+        Gson gson = new Gson();
+        json = gson.toJson(commodlist);
+
+
+        tj.setOnClickListener(this);
+    }
+
+    @Override
+    public void AddressList(List<Addressinfo.ResultBean> addressList) {
+
+        confirmAddressAdapter = new ConfirmAddressAdapter(this, addressList);
+        address.setAdapter(confirmAddressAdapter);
+        //返回地址Id
+
+        confirmAddressAdapter.getCallBackConfirmId(new ConfirmAddressAdapter.CallBackConfirmId() {
+            @Override
+            public void getMid(int id) {
+                Log.i("xxxx", "---id" + id);
+                integer = id;
+            }
+        });
 
     }
 
     @Override
     protected void initData() {
-        num.setText("共" + list.size() + "件商品");
-        ConfirmAdapter confirmAdapter = new ConfirmAdapter(this, list);
+
+        num.setText("共" + orderlist.size() + "件商品");
+        ConfirmAdapter confirmAdapter = new ConfirmAdapter(this, orderlist);
         shopping.setAdapter(confirmAdapter);
         //价格
         confirmAdapter.setOnMoneyClick(new ConfirmAdapter.OnMoneyClick() {
@@ -119,11 +141,14 @@ public class ConfirmOrderActivity extends BaseActivity implements AddressContach
         confirmAdapter.setOnNumClick(new ConfirmAdapter.OnNumClick() {
             @Override
             public void getData(int num) {
-                //添加订单
-                List<CreateOrder> orderlist = new ArrayList<>();
-                orderlist.add(new CreateOrder(commodityId, num));
+                List<CreateOrder> commodlist = new ArrayList<>();
+                for (int i = 0; i < orderlist.size(); i++) {
+                    int commodityId = orderlist.get(i).getCommodityId();
+                    int count = orderlist.get(i).getCount();
+                    commodlist.add(new CreateOrder(commodityId, count));
+                }
                 Gson gson = new Gson();
-                json = gson.toJson(orderlist);
+                json = gson.toJson(commodlist);
             }
         });
 
@@ -134,29 +159,15 @@ public class ConfirmOrderActivity extends BaseActivity implements AddressContach
 
     }
 
+
     @Override
-    public void AddressList(List<Addressinfo.ResultBean> addressList) {
-
-        confirmAddressAdapter = new ConfirmAddressAdapter(this, addressList);
-        address.setAdapter(confirmAddressAdapter);
-        //返回地址Id
-        confirmAddressAdapter.getCallBackConfirmId(new ConfirmAddressAdapter.CallBackConfirmId() {
-
-            @Override
-            public void getId(String id) {
-                integer = Integer.valueOf(id);
-                address.setVisibility(View.GONE);
-            }
-        });
+    public void walletList(Wallerinfo.ResultBean result) {
 
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.con_text:
-                address.setVisibility(View.VISIBLE);
-                break;
             case R.id.con_tj:
                 if (integer != 0) {
                     findCarPresenter1.CreateOrder(Api.CreateUrl, userId, sessionId, json, price, integer, disposable);
@@ -188,9 +199,17 @@ public class ConfirmOrderActivity extends BaseActivity implements AddressContach
             String orderId = shZcarinfo.getOrderId();
             Intent intent = new Intent(ConfirmOrderActivity.this, PaymentActivity.class);
             intent.putExtra("orderid", orderId);
+            intent.putExtra("price", price+"");
             startActivity(intent);
             finish();
         }
+    }
+
+    //eventbus接收到的集合
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void getEventBus(List<OrderPagerinfo> list) {
+        orderlist.clear();
+        orderlist.addAll(list);
     }
 
     @Override
@@ -203,5 +222,7 @@ public class ConfirmOrderActivity extends BaseActivity implements AddressContach
             disposable.clear();
             disposable.dispose();
         }
+        //销毁EventBus
+        EventBus.getDefault().unregister(this);
     }
 }

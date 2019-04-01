@@ -37,7 +37,8 @@
         <activity android:name=".activity.NewAddressActivity" />
         <activity android:name=".activity.ConfirmOrderActivity" />
         <activity android:name=".activity.WalletActivity" />
-        <activity android:name=".activity.PaymentActivity"></activity>
+        <activity android:name=".activity.PaymentActivity" />
+        <activity android:name=".activity.ListActivity"></activity>
     </application>
 
 </manifest>
